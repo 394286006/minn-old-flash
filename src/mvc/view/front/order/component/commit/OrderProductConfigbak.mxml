@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/halo" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"  
+		 creationComplete="vbox1_creationCompleteHandler(event)"
+		 updateComplete="canvas1_updateCompleteHandler(event)" xmlns:s1="library://ns.adobe.com/flex/spark" >
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+		<mx:CurrencyFormatter currencySymbol="￥" id="cf" precision="2"/>
+		<mx:CurrencyFormatter currencySymbol="" id="kg" precision="2"/>
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import flexmdi.events.MinnMessageEventManager;
+			
+			import minn.common.DrawLine;
+			import minn.common.Triangle;
+			
+			import mvc.model.merchandise.vo.Product;
+			import mvc.view.front.product.event.ProductListEvent;
+			
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+			
+			import skin.ButtonSkin;
+			import skin.ShopCardBtn;
+			[Bindable]
+			private var _products:ArrayCollection=null;
+			[Bindable]
+			public var totalmoney:Number=0;
+			[Bindable]
+			public var numProducts:int=0;
+			[Bindable]
+			public var totalWeight:Number=0;
+			
+			[Bindable]
+			public function set products(p:ArrayCollection):void{
+				_products=p;
+				
+				reCount();
+			}
+			public function get products():ArrayCollection{
+				return _products;
+			}
+			
+			public function del_clickHandler(event:MouseEvent,d:Object):void{
+				
+				var evt:ProductListEvent=new ProductListEvent(ProductListEvent.PRODUCT_DEL_BY_ORDER,true);
+				evt.product=d as Product;
+//				MinnMessageEventManager.getInstance().dispatchEvent(evt);
+				this.dispatchEvent(evt);
+				_products.removeItemAt(_products.getItemIndex(d));
+				reCount();
+				
+			}
+			
+			public function reCount():void{
+				totalmoney=0;
+			    numProducts=0;
+				totalWeight=0;
+				for (var i:int=0; i < _products.length; i++)
+				{
+					var product:Product =_products.getItemAt(i) as Product;
+					totalmoney += product._qty * Number(product.price);
+					totalWeight+=product._qty*Number(product.weight);
+					numProducts += product._qty;
+				}
+//				.cartCount=numProducts;
+			}
+			
+
+			protected function commit_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				parentDocument.commit_clickHandler();
+			}
+
+
+			protected function vbox1_creationCompleteHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+
+				var dl:DrawLine=new DrawLine();
+				dl.draw2Line(10,400,280,400);
+				addChild(dl);
+				
+				var tri:Triangle=new Triangle();
+				var v:Vector.<Number>=new Vector.<Number>();
+				v.push(180, 30);
+				v.push(15, 200);
+				v.push(250, 400);
+				tri.drawTriangle(v,0xc2be9e);
+				this.addElement(tri);
+				this.setElementIndex(tri,0);
+			}
+
+
+			protected function canvas1_updateCompleteHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+//				if(parentDocument!=null&&this.parentDocument.method=="showDetail"){
+//					operation_id.visible=false;
+//					ordercommit_id.visible=false;
+//				}else{
+//					operation_id.visible=true;
+//					ordercommit_id.visible=true;
+//				}
+			}
+
+		]]>
+	</fx:Script>
+	<mx:VBox paddingLeft="30" verticalGap="0" >
+	<mx:Label paddingLeft="60" text="订单确认列表" fontSize="16"/>  
+	<mx:DataGrid dataProvider="{_products}" height="300" width="220" sortableColumns="false" paddingRight="10" resizableColumns="false" id="product_id">
+		<mx:columns>
+			<mx:DataGridColumn headerText="商品名称" width="160" dataField="name"/>
+			<mx:DataGridColumn headerText="操作" width="45" id="operation_id">
+			  <mx:itemRenderer>
+				  <fx:Component>
+					  <mx:Label   height="12" width="12" useHandCursor="true" buttonMode="true" creationComplete="label1_creationCompleteHandler(event)" click="outerDocument.del_clickHandler(event,data)">
+						  <fx:Script>
+							  <![CDATA[
+								  import mx.events.FlexEvent;
+
+								  protected function label1_creationCompleteHandler(event:FlexEvent):void
+								  {
+									  // TODO Auto-generated method stub
+									  var g:Graphics=Label(event.target).graphics;
+									  graphics.lineStyle(3, 0xAF0000);
+									  graphics.moveTo(10,5);
+									  graphics.lineTo(22,15);
+									  graphics.moveTo(10,20);
+									  graphics.lineTo(18,2);
+								  }
+
+							  ]]>
+						  </fx:Script>
+					  </mx:Label>
+
+				  </fx:Component>
+			  </mx:itemRenderer>
+			</mx:DataGridColumn>
+		</mx:columns>
+	</mx:DataGrid>
+	<mx:HBox>
+		<mx:Label text="总件数:{numProducts}"/><mx:Label text="总重量:{kg.format(totalWeight)}kg"/>
+	</mx:HBox>
+    <mx:HBox>
+		<mx:Label text="总金额(人民币):{cf.format(totalmoney)}"/>
+	</mx:HBox>
+	 <mx:HBox width="210">
+		 <mx:Spacer width="100%"/><s1:Button label="提交订单" id="ordercommit_id" useHandCursor="true" skinClass="{skin.ShopCardBtn}" buttonMode="true" click="commit_clickHandler(event)"/>
+	 </mx:HBox> 
+	<mx:Spacer height="20"/>
+	</mx:VBox>
+	 <mx:Label text="2页" x="250" y="410"/>
+</mx:Canvas>

@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009"  
+		 xmlns:s="library://ns.adobe.com/flex/halo" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"   
+		 creationComplete="vbox1_creationCompleteHandler(event)" 
+		 xmlns:commont="mvc.view.front.commont.*" xmlns:s1="library://ns.adobe.com/flex/spark">
+	<fx:Script source="../../../../../../mvc/base/FrontBaseImport.as"/>
+	<fx:Script>
+		<![CDATA[
+			import skin.BookBtnSkin;
+//			[Bindable]
+			private var _orderaddress:OrderAddress=null;
+			
+			private var ways:Array=[{label:"快递方式",data:2},{label:"客户上门自提",data:0}];
+//			private var cir:Circle=new Circle();
+			private var iscomplete:Boolean=false;
+			protected function vbox1_creationCompleteHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				var loader:URLLoader=new URLLoader();
+				var request:URLRequest =  new URLRequest(Config.AREA_MENU);
+				loader.addEventListener(Event.COMPLETE,menuResult);
+				loader.load(request);
+				
+				var dl:DrawLine=new DrawLine();
+				dl.draw2Line(10,400,280,400);
+				addChild(dl);
+				
+//				cir.drawCircle(close_id.x+16,close_id.y+15,15,0x0a10f2,2);
+//				cir.alpha=0.4;
+//				addChild(cir);
+//				cir.visible=false;
+				
+				
+				var tri:Triangle=new Triangle();
+				var v:Vector.<Number>=new Vector.<Number>();
+				v.push(200, 20);
+				v.push(20, 200);
+				v.push(40, 380);
+				tri.drawTriangle(v,0xc2be9e);
+				this.addElement(tri);
+				this.setElementIndex(tri,0);
+				
+//				iscomplete=true;
+				
+//				if(_orderaddress!=null){
+//					receiveName_id.text=_orderaddress.receiveName;
+//					address2_id.text=_orderaddress.address;
+//					code_id.text=_orderaddress.code;
+//					email_id.text=_orderaddress.email;
+//					phone_id.text=_orderaddress.phone;
+//				}
+				
+				
+			}
+			/**
+			 * 加载类别菜单
+			 **/ 
+			private var menus:Array=[];
+			private function menuResult(evt:Event):void{
+				var loader:URLLoader=URLLoader(evt.target);
+				menus=JSON.decode(decodeURIComponent(loader.data));
+				province_id.dataProvider=menus;
+//				menus.filter(returnFilterArr);
+				province_id.selectedIndex=-1;
+//				city_id.dataProvider=province_id.selectedItem.children;
+//				city_id.selectedIndex=0;
+//				town_id.dataProvider=city_id.selectedItem.children;
+			}
+		
+
+			public function set orderAddress(obj:OrderAddress):void{
+				this._orderaddress=obj;
+				if(obj!=null){
+					receiveName_id.text=_orderaddress.receiveName;
+					address2_id.text=_orderaddress.address;
+					code_id.text=_orderaddress.code;
+					email_id.text=_orderaddress.email;
+					phone_id.text=_orderaddress.phone;
+				}else{
+					receiveName_id.text='';
+					address2_id.text='';
+					code_id.text='';
+					email_id.text='';
+					phone_id.text='';
+				}
+				
+			}
+			
+			public function get orderAddress():OrderAddress{
+				if(_orderaddress==null)
+				    _orderaddress=new OrderAddress();
+				
+				_orderaddress.address=address1_id.text+address2_id.text;
+				_orderaddress.code=code_id.text;
+				_orderaddress.email=email_id.text;
+				_orderaddress.phone=phone_id.text;
+				_orderaddress.receiveName=receiveName_id.text;
+				return _orderaddress;
+			}
+			
+			
+
+			protected function close_id_mouseOverHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+//				cir.visible=true;
+			}
+
+
+			protected function close_id_mouseOutHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+//				cir.visible=false;
+			}
+
+
+			protected function province_id_changeHandler():void
+			{
+				// TODO Auto-generated method stub
+				if(menus.length>0){
+//				var arr:Array=menus.filter(returnFilterArr);
+//				province_id.dataProvider=arr;
+				if(province_id.selectedItem){
+				city_id.dataProvider=province_id.selectedItem.children;
+				city_id.selectedIndex=0;}
+				if(city_id.selectedItem)
+				town_id.dataProvider=city_id.selectedItem.children;
+				}
+				else{
+					Alert.show("正在加载数据!","提示");
+				}
+				
+			}
+			private function returnFilterArr(element:*, ind:int, arr:Array):Boolean {
+				return true;
+//				return (String(element.name).indexOf(province_id.text)!=-1);
+			}
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	
+	</fx:Declarations>
+	<mx:VBox width="100%"   paddingLeft="25">
+	
+	<mx:Label paddingLeft="80" text="收货人信息" fontSize="16"/>
+	<mx:HBox horizontalGap="0" >
+		<mx:Label text="收货人:"/><mx:TextInput  width="175" id="receiveName_id" toolTip="收货人的名字"/>
+	</mx:HBox>
+	<mx:HBox horizontalGap="0">
+		
+		<mx:Label text="省    份:"/><mx:ComboBox styleName="bookcomBox" labelField="name" id="province_id" change="province_id_changeHandler()"  editable="false" enabled="true"/>
+	</mx:HBox>
+	<mx:HBox horizontalGap="0">
+		<mx:Label text="城    市:"/> <mx:ComboBox styleName="bookcomBox" labelField="name" id="city_id" change="{town_id.dataProvider=city_id.selectedItem.children;town_id.selectedIndex=-1;address1_id.text=province_id.selectedItem.name+city_id.selectedItem.name;}"/>
+	</mx:HBox>
+	<mx:HBox horizontalGap="0">
+		<mx:Label text="镇    区:"/><mx:ComboBox styleName="bookcomBox" labelField="name" id="town_id" change="{address1_id.text=province_id.selectedItem.name+city_id.selectedItem.name+town_id.selectedItem.name;}"/>
+	</mx:HBox>
+	<mx:HBox horizontalGap="0" >
+		<mx:Label text="地    址:"/><mx:Label id="address1_id"/>
+	</mx:HBox>
+    <mx:TextInput width="224" id="address2_id"  toolTip="详细地址"/>
+	
+	<mx:HBox horizontalGap="0">
+		<mx:Label text="联系电话:"/><mx:TextInput id="phone_id" />
+	</mx:HBox>
+	<mx:HBox horizontalGap="0">
+		<mx:Label text="电子邮件:"/><mx:TextInput id="email_id"/>
+	</mx:HBox>
+	<mx:HBox horizontalGap="0">
+		<mx:Label text="邮政编码:"/><mx:TextInput id="code_id" toolTip="请慎重填写,可以快速确定收件人区域"/>
+	</mx:HBox>
+	<mx:HBox horizontalGap="0">
+		<mx:Label text="配送方式:"/><mx:ComboBox styleName="bookcomBox" dataProvider="{ways}" id="getway_id"/>
+	</mx:HBox>
+	</mx:VBox>
+	
+	<s1:Button x="240" y="365" height="30" width="30" alpha="0.9" visible="false" skinClass="{skin.BookBtnSkin}" useHandCursor="true" buttonMode="true" id="close_id"  mouseOver="close_id_mouseOverHandler(event)" mouseOut="close_id_mouseOutHandler(event)" click="{this.parentDocument.closeThis()}" />
+	<mx:Label text="1页" x="250" y="410"/>
+</mx:Canvas>

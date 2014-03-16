@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/halo" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" styleName="bookcanvas" creationComplete="completeHandler()" xmlns:s1="library://ns.adobe.com/flex/spark">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script> 
+		<![CDATA[
+			import minn.common.DashLine;
+			import minn.common.DrawLine;
+			
+			private function completeHandler():void{
+				var dashLine:DashLine = new DashLine();
+				d1.addChild(dashLine.drawDashLine(0, 0xFF0000, 0.9, d1.x, d1.y+d1.height, d1.x+d1.width, d1.y+d1.height, 1, 1, 5));
+//				dashLine= new DashLine();
+//				d2.addChild(dashLine.drawDashLine(0, 0xFF0000, 0.9, d2.x, d2.y+d2.height, d2.x+d2.width, d2.y+d2.height, 1, 1, 5));
+				dashLine = new DashLine();
+				d3.addChild(dashLine.drawDashLine(0, 0xFF0000, 0.9, d3.x, d3.y+d3.height, d3.x+d3.width, d3.y+d1.height, 1, 1, 5));
+				dashLine = new DashLine();
+				d4.addChild(dashLine.drawDashLine(0, 0xFF0000, 0.9, d4.x, d4.y+d4.height, d4.x+d4.width, d4.y+d1.height, 1, 1, 5));
+			    
+				var dl:DrawLine=new DrawLine();
+				dl.draw2Line(10,400,280,400);
+				addChild(dl);
+				
+			}
+		]]>
+	</fx:Script>
+	<mx:Image source="assets/img/ml.gif" height="100%" width="100%" alpha="0.15"/>
+	<mx:Label x="100" text="目录" paddingTop="10" fontSize="25"/>
+	<mx:HBox width="100%" x="0" y="50" horizontalGap="2" paddingLeft="30">
+		<mx:Label text="收货人信息"/><mx:Canvas id="d1" height="12" width="100"/><mx:Label text="1" />
+	</mx:HBox>
+	<!--mx:HBox width="100%" x="0" y="80" horizontalGap="2" paddingLeft="30">
+		<mx:Label text="支付方式"/><mx:Canvas id="d2" height="12" width="100"/><mx:Label text="1" />
+	</mx:HBox-->
+	<mx:HBox width="100%" x="0" y="80" horizontalGap="2" paddingLeft="30">
+		<mx:Label text="配送方式"/><mx:Canvas id="d3" height="12" width="100"/><mx:Label text="1" />
+	</mx:HBox>
+	<mx:HBox width="100%" x="0" y="110" horizontalGap="2" paddingLeft="30">
+		<mx:Label text="我的订单"/><mx:Canvas id="d4" height="12" width="100"/><mx:Label text="2" />
+	</mx:HBox>
+</mx:Canvas>

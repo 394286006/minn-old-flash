@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml"  width="100%" verticalAlign="middle" horizontalScrollPolicy="off"
+		 paddingTop="0" 
+		 paddingBottom="0" xmlns:common="minn.common.*">
+	<mx:Script source="../../../../../mvc/base/FrontBaseImport.as"/>
+	<mx:Script>
+		<![CDATA[
+			[Bindable]
+			public var cartCount:int;
+			protected function order_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				WindowProxy.getInstance().getPopWinExplorer("mvc/view/front/order/component/show/ShowOrderPanel.swf",this,null,50,280);
+			}
+		]]>
+	</mx:Script>
+
+	<mx:Spacer width="100%"/>
+	<common:PageToolBar id="pagePar">
+	</common:PageToolBar>
+	<mx:VRule height="{find_id.height * .75}"  alpha=".75"/>
+	<mx:Label id="find_id" text="返回搜索" click="dispatchEvent(new Event('hideProductCart',true))" />
+	<mx:VRule height="{find_id.height * .75}"  alpha=".75"/>
+	<mx:Label text="我的订单" click="order_clickHandler(event)"/>
+	<mx:VRule height="{find_id.height * .75}"  alpha=".75"/>
+	<mx:Label id="viewcart" text="购物车 ({cartCount}件)" click="dispatchEvent(new Event('showProductCart',true))"/>
+</mx:HBox>

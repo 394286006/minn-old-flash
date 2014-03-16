@@ -1,0 +1,426 @@
+<?xml version="1.0" encoding="utf-8"?>
+<containers:PopWin xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		   xmlns:s="library://ns.adobe.com/flex/halo" 
+		   xmlns:mx="library://ns.adobe.com/flex/mx"
+		   name="登陆"
+		   xmlns:containers="flexmdi.containers.*"  creationPolicy="all"
+		   width="100%" height="100%" layout="vertical" verticalGap="0"
+		    fontSize="13"
+		   creationComplete="module1_creationCompleteHandler(event)"
+		   removed="module1_removeHandler(event)" xmlns:common="minn.common.*" currentStateChange="popwin1_currentStateChangeHandler(event)"
+		   xmlns:s1="library://ns.adobe.com/flex/spark" >
+	<fx:Style source="../../../../../assets/css/app_css.css"/>
+	<fx:Script source="../../../../../mvc/base/FrontBaseImport.as"/>
+	<fx:Script>
+		<![CDATA[
+			import mvc.model.user.UserProxy;
+			
+			import mx.events.StateChangeEvent;
+			
+			import skin.ButtonSkin;
+			import skin.ShopCardBtn;
+			
+			
+			[Bindable]
+			private var user:User=null;
+			
+			private var userProxy:UserProxy=null;
+			protected function module1_removeHandler(event:Event):void
+			{
+			}
+			
+			protected function module1_creationCompleteHandler(event:FlexEvent):void
+			{
+			}
+			public function messageHandler(val:Object):void{
+//				Alert.show(e.data.toString());
+				var type:String=val.type;
+//				if(val.type=="modify")
+//                     this.currentState=type;
+				if(val.hasOwnProperty("item")){
+				    user=val.item as User;
+//					Alert.show(user.backemail);
+//					userName_ch_id.text=user.userName_ch;
+//					userName_en_id.text=user.userName_en;
+//					password_id.text=user.password;
+//					email_id.text=user.email;
+//					qq_msn_id.text=user.qq_msn;
+				}
+//					currentState=type;
+					
+//				}
+			}
+			private function click_Handler():void{
+			
+//				Alert.show(this.parent.parent.toString());
+				var validatorErrorArray:Array = Validator.validateAll(validatorArray); 
+				var err:ValidationResultEvent; 
+				var errorMessageArray:Array = []; 
+				if(validatorErrorArray.length>0){
+					for each (err in validatorErrorArray) { 
+						errorMessageArray.push(err.message); 
+					} 
+					
+					if(errorMessageArray.length >0){
+						Alert.show(errorMessageArray.join("\n\n"), "请按照以下错误提示信息重新填写", Alert.OK,this.parentApplication as Sprite);
+						
+						return;
+					}
+				}
+				
+				if(userProxy==null)
+					userProxy=ControllerService.getInstance(ControllerCommand.USER_PROXY);
+				if(currentState=='Register'){
+					if(password_id.text!=confirm_id.text){
+						Alert.show("确认密码不正确!","提示",4,this.parentApplication as Sprite);
+						confirm_id.text="";
+						password_id.text="";
+						return;
+					}
+					user=new User();
+					user._sid=this.parentApplication.PRIVATEKEY;
+					user.userName_ch=userName_ch_id.text;
+					user.userName_en=userName_en_id.text;
+					user.password=password_id.text;
+					user.email=email_id.text;
+					user.qq_msn=qq_msn_id.text;
+					user.backemail=bakemail_id.text;
+					userProxy.add(user,addResultHandler);
+//					Alert.show("注册");
+				}else if(currentState=='backUser'){
+//				   Alert.show("backuser");
+					user=new User();
+					user._sid=this.parentApplication.PRIVATEKEY;
+					user.userName_en=userName_en_id.text;
+					user.backemail=bakemail_id.text;
+					userProxy.backPwd(user,backPwdResultHandler);
+				}else if(currentState=='modify'){
+					user._sid=this.parentApplication.PRIVATEKEY;
+//					user.id=this.parentApplication.user.id;
+					user.userName_ch=userName_ch_id.text;
+					user.userName_en=userName_en_id.text;
+					user.password=password_id.text;
+					user.email=email_id.text;
+					user.qq_msn=qq_msn_id.text;
+					user.backemail=bakemail_id.text;
+					userProxy.modify(user,modifyResultHandler);
+				}
+				else if(currentState=='login'){
+					user=new User();
+//					user.userName_ch=userName_ch.text;
+					user._sid=this.parentApplication.PRIVATEKEY;
+					user.userName_en=userName_en_id.text;
+					user.password=password_id.text;
+					userProxy.login(user,loginResultHandler);
+				}else if(currentState=='modifypwd'){
+					if(newpassword_id.text!=confirm_id.text){
+						Alert.show("确认密码不正确!","提示",4,this.parentApplication as Sprite);
+						confirm_id.text="";
+						newpassword_id.text="";
+						return;
+					}
+					if(user.password!=password_id.text){
+						Alert.show("原密码不正确!","提示",4,this.parentApplication as Sprite);
+						password_id.text='';
+						return;
+					}
+					user._sid=this.parentApplication.PRIVATEKEY;
+					user.password=newpassword_id.text;
+					user._oldpassword=password_id.text;
+					userProxy.updatePwd(user,modifypwdResultHandler);
+				}
+			}
+
+			private function modifypwdResultHandler(message:Message):void{
+				Alert.show(message.messageBody,'提示',4,this.parentApplication as Sprite);
+				PopUpManager.removePopUp(this);		
+			}
+			
+			private function backPwdResultHandler(message:Message):void{
+				if(message.messageSucess==1)
+				    PopUpManager.removePopUp(this);
+				
+				Alert.show(message.messageBody,'提示',4,this.parentApplication as Sprite);
+			
+			}
+			
+			private function addResultHandler(message:Message):void{
+				Alert.show(message.messageBody,'提示',4,this.parentApplication as Sprite);
+                PopUpManager.removePopUp(this);		
+			}
+			private function modifyResultHandler(message:Message):void{
+				Alert.show(message.messageBody,'提示',4,this.parentApplication as Sprite);
+				this.parentDocument.user=user;
+				PopUpManager.removePopUp(this);		
+				
+			}
+		    private function loginResultHandler(message:Message):void{
+				if(user==null)
+					user=new User();
+				if(message.messageSucess==1){
+					MinnUtil.propertyMap(message.messageBody,user);
+//					this.parentApplication.saveLocale(user,so_check_id.selected);
+					this.dispatchEvent(new MinnMessageEvent(MinnMessageEvent.MESSAGE+"loginSucesses",user,true));
+					PopUpManager.removePopUp(this);
+				}else{
+					Alert.show(message.messageBody,'提示',4,this.parentApplication as Sprite);
+				}
+//				Alert.show(message.messageBody);
+			}
+
+
+			protected function userName_en_id_mouseOutHandler(event:FocusEvent):void
+			{
+				if(userProxy==null)
+					userProxy=ControllerService.getInstance(ControllerCommand.USER_PROXY);
+					user=new User();
+					if(userName_en_id.text!=''){
+					user._sid=this.parentApplication.PRIVATEKEY;
+					user.userName_en=userName_en_id.text;
+					
+					userProxy.userCheck(user,userCheckResultHandler);
+				}
+			}
+			private function userCheckResultHandler(message:Message):void{
+				
+				if(message.messageSucess==0){
+					Alert.show(message.messageBody,"提示",4,this.parentApplication as Sprite);
+					userName_en_id.text="";
+				}
+				
+			}
+			
+			private function emailValidator_valid(evt:ValidationResultEvent):void {
+				if(this.currentState=="Register"){
+				if(email_id.text==""&&bakemail_id.text=="")
+				    Alert.show(evt.message,"提示",4,this.parentApplication as Sprite);
+				return;
+				}
+				
+			}
+			
+			private function emailValidator_invalid(evt:ValidationResultEvent):void {
+				if(this.currentState=="Register"){
+					if(email_id.text!=""&&bakemail_id.text!="")
+						Alert.show(evt.message,"提示",4,this.parentApplication as Sprite);
+					return;
+				}else 
+				if(this.currentState=="modify"){
+//					Alert.show(evt.message,"提示");
+				}
+			}
+
+			protected function popwin1_currentStateChangeHandler(event:StateChangeEvent):void
+			{
+				if(currentState=="Register"){
+					this.title='注册';
+					userName_ch_id.text='';
+					userName_en_id.text='';
+					password_id.text='';
+					email_id.text='';
+					qq_msn_id.text='';
+					bakemail_id.text="";
+					pwdlabel_id.visible=true;
+					pwdlabel_id.includeInLayout=true;
+					compwdlabel_id.visible=true;
+					compwdlabel_id.includeInLayout=true;
+					compwdlabel2_id.visible=false;
+					compwdlabel2_id.includeInLayout=false;
+					namelabel_id.visible=true;
+					namelabel_id.includeInLayout=true;
+					emaillabel_id.visible=true;
+					emaillabel_id.includeInLayout=true;
+					qmlabel_id.visible=true;
+					qmlabel_id.includeInLayout=true;
+					be_id.visible=true;
+					be_id.includeInLayout=true;
+				}else if(currentState=="modify"){
+					
+					this.title='修改';
+					userName_ch_id.text=user.userName_ch;
+					userName_en_id.text=user.userName_en;
+					email_id.text=user.email;
+					qq_msn_id.text=user.qq_msn;
+					bakemail_id.text=user.backemail;
+					
+					pwdlabel_id.visible=false;
+					pwdlabel_id.includeInLayout=false;
+					compwdlabel_id.visible=false;
+					compwdlabel_id.includeInLayout=false;
+					compwdlabel2_id.visible=false;
+					compwdlabel2_id.includeInLayout=false;
+					namelabel_id.visible=true;
+					namelabel_id.includeInLayout=true;
+					emaillabel_id.visible=true;
+					emaillabel_id.includeInLayout=true;
+					qmlabel_id.visible=true;
+					qmlabel_id.includeInLayout=true;
+					be_id.visible=true;
+					be_id.includeInLayout=true;
+				}else 
+				if(currentState=="login"){
+					this.title='登陆';
+					pwdlabel_id.visible=true;
+					pwdlabel_id.includeInLayout=true;
+					compwdlabel_id.visible=false;
+					compwdlabel_id.includeInLayout=false;
+					compwdlabel2_id.visible=false;
+					compwdlabel2_id.includeInLayout=false;
+					namelabel_id.visible=false;
+					namelabel_id.includeInLayout=false;
+					emaillabel_id.visible=false;
+					emaillabel_id.includeInLayout=false;
+					qmlabel_id.visible=false;
+					qmlabel_id.includeInLayout=false;
+					be_id.visible=false;
+					be_id.includeInLayout=false;
+				}else 
+				if(currentState=="backUser"){
+					this.title='找回密码';
+					userName_en_id.text='';
+					bakemail_id.text="";
+					pwdlabel_id.visible=false;
+					pwdlabel_id.includeInLayout=false;
+					compwdlabel_id.visible=false;
+					compwdlabel_id.includeInLayout=false;
+					compwdlabel2_id.visible=false;
+					compwdlabel2_id.includeInLayout=false;
+					namelabel_id.visible=false;
+					namelabel_id.includeInLayout=false;
+					emaillabel_id.visible=false;
+					emaillabel_id.includeInLayout=false;
+					qmlabel_id.visible=false;
+					qmlabel_id.includeInLayout=false;
+					be_id.visible=true;
+					be_id.includeInLayout=true;
+				}else if(currentState=="modifypwd"){
+					this.title='修改密码';
+					password_id.text='';
+					newpassword_id.text='';
+					confirm_id.text='';
+					pwdlabel_id.visible=true;
+					pwdlabel_id.includeInLayout=true;
+					compwdlabel_id.visible=true;
+					compwdlabel_id.includeInLayout=true;
+					compwdlabel2_id.visible=true;
+					compwdlabel2_id.includeInLayout=true;
+					namelabel_id.visible=false;
+					namelabel_id.includeInLayout=false;
+					emaillabel_id.visible=false;
+					emaillabel_id.includeInLayout=false;
+					qmlabel_id.visible=false;
+					qmlabel_id.includeInLayout=false;
+					be_id.visible=false;
+					be_id.includeInLayout=false;
+				}
+			}
+
+
+			protected function bakemail_id_focusOutHandler(event:FocusEvent):void
+			{
+				
+			}
+
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+		<fx:Array id="validatorArray">
+			<mx:StringValidator id="userNameValidator"
+								source="{userName_en_id}" includeIn="login,Register,modify"
+								requiredFieldError="用户名不能为空！"
+								property="text" 
+								required="true" />
+			<mx:StringValidator id="password_idValidator" includeIn="login,Register,modifypwd"
+								source="{password_id}" 
+								requiredFieldError="密码不能为空！" requiredFieldError.modifypwd="原密码不能为空！"
+								property="text" 
+								required="true" />
+			<mx:StringValidator id="newpassword_idValidator" includeIn="modifypwd"
+								source="{newpassword_id}" 
+								requiredFieldError="新密码不能为空！"
+								property="text" 
+								required="true" />
+			<mx:StringValidator id="confirm_idValidator" includeIn="Register,modifypwd"
+								source="{confirm_id}" 
+								requiredFieldError="确认密码不能为空！" requiredFieldError.modifypwd="新确认密码不能为空！"
+								property="text" 
+								required="true" />
+			<mx:StringValidator id="userName_ch_idValidator" includeIn="Register,modify"
+								source="{userName_ch_id}"  
+								requiredFieldError="昵称不能为空！"
+								property="text" 
+								required="true" />
+			<mx:EmailValidator  id="email_idValidator" 
+								source="{email_id}"  includeIn="Register,modify"
+								requiredFieldError="email不能为空！"
+								valid="emailValidator_valid(event)"
+								invalid="emailValidator_invalid(event)"
+								property="text" 
+								required="true" />
+			<mx:EmailValidator id="bakemail_idValidator" 
+							   source="{bakemail_id}"  includeIn="Register,backUser"
+							   requiredFieldError="找回密码email不能为空！"
+							   valid.Register="emailValidator_valid(event)"
+							   invalid.Register="emailValidator_invalid(event)"
+							   property="text" 
+							   required="true" />
+		</fx:Array>
+
+	</fx:Declarations>
+
+	<containers:states>
+		<mx:State name="login"/>    
+		<mx:State name="Register"/>
+		<mx:State name="modify"/>
+		<mx:State name="modifypwd"/>
+		<mx:State name="backUser"/>
+	</containers:states>
+		<mx:Form id="loginForm" width="100%" height="100%">  
+			<mx:FormItem label="用户名:">
+				<mx:TextInput id="userName_en_id" text="minn" focusOut.Register="userName_en_id_mouseOutHandler(event)"/>
+			</mx:FormItem>
+			<mx:FormItem label="密      码:" label.modifypwd="原密码:" direction="horizontal" id="pwdlabel_id">
+					<mx:TextInput id="password_id" text="1234"  displayAsPassword="true"/><mx:Label text="密码由6~~8位的数字,字母或下划线组成"/>
+			</mx:FormItem>
+			<mx:FormItem  label="新密码:" id="compwdlabel2_id">
+				<mx:TextInput id="newpassword_id"  displayAsPassword="true"/>
+			</mx:FormItem>    
+			<mx:FormItem  label="确认密码:" label.modifypwd="新确认密码" id="compwdlabel_id">
+				<mx:TextInput id="confirm_id"  displayAsPassword="true"/>
+			</mx:FormItem>    
+			<mx:FormItem label="昵称" direction="horizontal"  id="namelabel_id">
+				<mx:TextInput  id="userName_ch_id" />
+			</mx:FormItem>
+			<mx:FormItem  label="邮箱:"  direction="horizontal"  id="emaillabel_id">
+					<mx:TextInput id="email_id"/><mx:Label text="联系时使用"/>
+			</mx:FormItem>    
+			<mx:FormItem label="QQ或MSN"  id="qmlabel_id">
+				<mx:TextInput  id="qq_msn_id" />
+			</mx:FormItem>
+			<mx:FormItem  label="找回密码邮箱:"  direction="horizontal" id="be_id">
+					<mx:TextInput id="bakemail_id" focusOut.Register="bakemail_id_focusOutHandler(event)" focusOut.modify="bakemail_id_focusOutHandler(event)"/><mx:Label text.Register="该邮件找回密码时使用,请慎重填写!" text.backUser="请填写找回密码的邮箱!"/>
+			</mx:FormItem>    
+		</mx:Form>
+	<mx:HBox width="100%" horizontalGap="10">
+		<mx:Spacer width="35" id="spacer1"/>
+		<mx:Spacer width="30" includeIn="Register"/>
+		<mx:Spacer width="65" includeIn="modify"/>
+		<mx:Spacer width="20" includeIn="login"/>
+		<mx:Spacer width="25" includeIn="backUser"/>
+		<common:MenuLabel text="找回密码?" includeIn="login,Register" click="currentState='backUser';"/>
+		<common:MenuLabel text="注册?" includeIn="login,backUser" click="currentState='Register';"/>
+		<common:MenuLabel text="登录?" includeIn="Register,backUser" click="currentState='login';"/>
+		<common:MenuLabel text.modify="修改密码?" text="修改用户信息?" includeIn="modify,modifypwd" click="if(currentState=='modify') currentState='modifypwd' else currentState='modify';"/>
+		<s1:Button id="loginButton" useHandCursor="true" buttonMode="true" skinClass="{skin.ShopCardBtn}"
+				  label.login="登录"  label.modify="修改" label.Register="注册" label.backUser="找回密码"  label.modifypwd="修改密码"
+				  click="click_Handler()"/>
+	</mx:HBox>
+
+   <mx:Spacer height="10"/>
+	<containers:transitions>
+		<mx:Transition fromState="*" toState="*">
+			<mx:Fade duration="800" alphaFrom="0" alphaTo="1" target="{loginForm}"/>
+		</mx:Transition>
+	</containers:transitions>
+</containers:PopWin>

@@ -1,0 +1,340 @@
+/* CSS file */
+@namespace s "library://ns.adobe.com/flex/halo";
+@namespace mx "library://ns.adobe.com/flex/mx";
+@namespace common "minn.common.*";
+@namespace containers "flexmdi.containers.*";
+@namespace tabBarClasses "flexmdi.controls.tabBarClasses.*";
+@namespace controls "flexmdi.controls.*";
+@namespace flexlib "http://code.google.com/p/flexlib/" ;
+/**
+s|VGroup{
+
+	width: 1000;
+	height: 1000;
+}
+mx|MenuBar{
+	width: 1000;
+	height: 1000;
+}
+mx|HDividedBox{
+	width: 1000;
+	height: 1000;
+}
+mx|Tree{
+	width: 1000;
+	height: 1000;
+}
+**/
+mx|Application{
+	fontSize:12px;
+	color: #575252;
+}
+mx|ApplicationControlBar {
+	highlightAlphas: 0.27, 0;
+	fillAlphas: 0.32, 0.6;
+	fillColors: #e1a31a, #a3a688;
+	backgroundColor: #070216;
+	backgroundAlpha: 0.68;
+}
+mx|ToolTip {
+	backgroundAlpha: 0.9;
+	cornerRadius: 11;
+	backgroundColor: #383439;
+	color: #f9fcfa;
+	textAlign: left;
+	fontSize: 12;
+}
+mx|Panel.panelw{
+	borderThicknessBottom:0;
+	borderThicknessLeft:0;
+	borderThicknessRight:0;
+	borderAlpha:1;
+}
+mx|Panel.titlewindstyle{
+	headerHeight:0px;
+	borderThicknessBottom:0;
+	borderThicknessLeft:0;
+	borderThicknessRight:0;
+	borderThicknessTop:0;
+	highlightAlphas: 0.6, 0.1;
+	shadowDistance: 1;
+	dropShadowColor: #0762e4;
+	
+}
+mx|Panel.productFilterTop{
+	borderStyle: solid;
+	borderThickness: 1;
+	shadowDistance: 1;
+	cornerRadius: 2;
+	highlightAlphas: 0.3, 0.04;
+	headerColors: #1009e8, #101ebb;
+	shadowDirection: left;
+	borderThicknessLeft:0;
+	borderThicknessRight:0;
+	borderThicknessBottom:0;
+	borderThicknessTop:0;
+}
+mx|Canvas.productFilterMiddle{
+	
+}
+mx|Canvas mx|TextInput{
+	color: #000000;
+}
+mx|Panel.productFilterBottomStyle{
+	borderStyle: solid;
+	highlightAlphas: 0.3, 0.04;
+	headerColors: #1009e8, #101ebb;
+	shadowDistance: -1;
+	shadowDirection: center;
+	borderThicknessLeft:0;
+	borderThicknessRight:0;
+	borderThicknessBottom:0;
+	borderThicknessTop:0;
+}
+mx|Panel.productCartStyle{
+	borderStyle: solid;
+	cornerRadius: 2;
+	headerColors: #9782b1, #24e808;
+	shadowDirection: left;
+	backgroundColor: #d3e9af;
+	borderThicknessLeft:0;
+	borderThicknessRight:0;
+	borderThicknessBottom:0;
+	borderThicknessTop:0;
+}
+mx|Panel.windstyle1{
+	headerHeight:0px;
+	borderThicknessBottom:0;
+	borderThicknessLeft:0;
+	borderThicknessRight:0;
+	borderThicknessTop:0;
+	highlightAlphas: 0.6, 0.1;
+}
+mx|Panel.productCategory{
+	borderStyle: solid;
+	borderThickness: 1;
+	borderAlpha: 1;
+	highlightAlphas: 0.38, 0;
+	headerColors: #f80404, #f30808;
+	titleStyleName: "productCategoryTitle";
+	shadowDirection: left;
+	borderThicknessLeft:0;
+	borderThicknessRight:0;
+	borderThicknessBottom:0;
+	borderThicknessTop:0;
+}
+
+mx|MenuBar.menuBarStyle{
+	borderStyle: none;
+	backgroundAlpha: 0;
+	backgroundColor: #ffffff;
+	fillAlphas:0,0;
+	focusAlpha:0;
+	borderColor:#e1d4a3;
+	left:0;
+	highlightAlphas:0,0;
+	strokeWidth:0;
+	fontAntiAliasType:"advanced";
+	menuStyleName:"menuBarItemStyle";
+}
+.menuBarItemStyle{
+	
+}
+.productCategoryTitle{
+	color: #ffffff;
+}
+mx|Button.titlebtn {
+	cornerRadius: 0;
+	textIndent: 0;
+	paddingLeft: 0;
+	paddingRight: 0;
+	letterSpacing: 0;
+	highlightAlphas: 0.18, 0.08;
+	fillAlphas: 0.63, 0.34, 0.93, 0.3;
+	fillColors: #000000, #000000, #2e22a7, #acc7c9;
+	color: #ffffff;
+	textRollOverColor: #1719e5;
+	borderColor: #414646;
+	themeColor: #2bcdd3;
+	useHandCursor:true;
+	buttonMode:true;
+	textSelectedColor: #2bcdd3;
+}
+mx|Button{
+	cornerRadius: 3;
+	paddingLeft: 0;
+	paddingRight: 0;
+	letterSpacing: 0;
+	highlightAlphas: 0.46, 0.08;
+	fillAlphas: 0.39, 0.57, 0.75, 0.65;
+	fillColors: #acd7e6, #28803c, #a9b997, #bcee07;
+	color: #747470;
+	textRollOverColor: #0b390f;
+	themeColor: #92a0a5;
+}
+mx|PopUpButton.titlemenubtn {
+	cornerRadius: 0;
+	textIndent: 0;
+	paddingLeft: 0;
+	paddingRight: 0;
+	letterSpacing: 0;
+	fillAlphas: 0, 0, 0, 0;
+	arrowButtonWidth: -50;
+	fillColors: #e1a31a, #a3a688;
+	backgroundColor: #070216;
+	textRollOverColor: #1719e5;
+	borderColor: #deca63;
+	themeColor: #dcd247;
+	useHandCursor:true;
+	buttonMode:true;
+	textSelectedColor: #2bcdd3;
+}
+
+mx|Menu{
+	cornerRadius: 0;
+	textIndent: 0;
+	paddingLeft: 0;
+	paddingRight: 0;
+	letterSpacing: 0;
+	color: #c1c4c5;
+	backgroundAlpha:0.9;
+	borderColor: #f4f9fc;
+	themeColor: #dcd247;
+	textSelectedColor:#e1e6e7;
+}
+
+mx|Button.productViewbtn {
+	cornerRadius: 3;
+	textIndent: 0;
+	paddingLeft: 0;
+	paddingRight: 0;
+	letterSpacing: 0;
+	highlightAlphas: 0.18, 0.08;
+	fillAlphas: 0.63, 0.34, 0.93, 0.3;
+	fillColors: #000000, #000000, #2e22a7, #acc7c9;
+	color: #ffffff;
+	textRollOverColor: #1719e5;
+	borderColor: #414646;
+	themeColor: #2bcdd3;
+	useHandCursor:true;
+	buttonMode:true;
+	textSelectedColor: #2bcdd3;
+}
+common|PageToolBar{
+	color: #575252;
+}
+
+containers|SuperTabNavigator.suponeTab {
+	firstTabStyleName: tabNavigatorFirstTab;
+	tabStyleName: tabNavigatorTab;
+	selectedTabTextStyleName: tabNavigatorSelectedTabText;
+	borderStyle: none;
+}
+.tabNavigatorFirstTab
+{
+	color: #4474B6;
+	fontFamily: Arial;
+	fontSize: 12;
+	fontWeight: normal;
+	borderColor: #B7BABC;
+	/*upSkin: Embed(source="assets/img/tab_no.jpg");
+	overSkin: Embed(source="assets/img/tab_no.jpg");
+	downSkin: Embed(source="assets/img/tab_yes.jpg");
+	disabledSkin: Embed(source="assets/img/tab_yes.jpg");
+	selectedUpSkin: Embed(source="assets/img/tab_yes.jpg");
+	selectedOverSkin: Embed(source="assets/img/tab_yes.jpg");
+	selectedDownSkin: Embed(source="assets/img/tab_no.jpg");
+*/
+}
+.tabNavigatorTab
+{
+	/*upSkin: Embed(source="assets/img/tab_no.jpg");
+	overSkin: Embed(source="assets/img/tab_no.jpg");
+	downSkin: Embed(source="assets/img/tab_yes.jpg");
+	disabledSkin: Embed(source="assets/img/tab_yes.jpg");
+	selectedUpSkin: Embed(source="assets/img/tab_yes.jpg");
+	selectedOverSkin: Embed(source="assets/img/tab_yes.jpg");
+	selectedDownSkin: Embed(source="assets/img/tab_no.jpg");
+	selectedDisabledSkin: Embed(source="assets/img/tab_no.jpg");*/
+	color: #8097B7;
+	fontFamily: Arial;
+	fontSize: 12;
+	fontWeight: normal;
+	leading: 2; 
+}
+.tabNavigatorSelectedTabText
+{
+	borderColor: #B7BABC;
+	/*upSkin: Embed(source="assets/img/tab_yes.jpg");
+	overSkin: Embed(source="assets/img/tab_yes.jpg");
+	downSkin: Embed(source="assets/img/tab_yes.jpg");
+	disabledSkin: Embed(source="assets/img/tab_yes.jpg");
+	selectedUpSkin: Embed(source="assets/img/tab_yes.jpg");
+	selectedOverSkin: Embed(source="assets/img/tab_yes.jpg");
+	selectedDownSkin: Embed(source="assets/img/tab_yes.jpg");*/
+	color: #4474B6;
+	fontFamily: Arial;
+	fontSize: 12;
+	fontWeight: normal;
+}
+
+.listItem
+{
+	paddingLeft:            4;
+	paddingRight:           4;
+	horizontalGap:          5;
+	verticalAlign:          "middle";
+	backgroundColor:        #FFFFFF;
+	backgroundAlpha:        .5;
+	borderStyle:            "outset";
+}
+
+containers|PopWin{
+	borderStyle: solid;
+	headerColors:#3cca0a, #4d10cb;
+}
+containers|PopWinExplorer{
+	borderStyle: solid;
+	headerColors:#3cca0a, #4d10cb;
+}
+containers|AdPanel{
+	borderAlpha: 1;
+	borderThicknessLeft: 0;
+	borderThicknessTop: 0;
+	borderThicknessBottom: 2;
+	borderThicknessRight: 0;
+	cornerRadius: 0;
+	headerColors: #666666, #339900;
+}
+mx|Alert{
+	borderStyle:solid;
+	headerColors: #dd1111, #713f3f;
+	titleStyleName:"alerttitle";
+	messageStyleName:"alertmessage";
+}
+.alerttitle{
+	color: #0e5de7;
+	fontWeight: bold;
+}
+.alertmessage{
+	backgroundColor: #ffffff;
+	color: #575252;
+}
+.mytabNavigator{
+	backgroundColor: #fffffe;
+	backgroundAlpha: 0.9;
+
+}
+mx|ProgressBar{
+	borderColor: #006666;
+	barColor: #990000;
+	trackColors: #999999, #cccccc;
+	paddingLeft: 3;
+	paddingRight: 2;
+	textIndent: 0;
+	letterSpacing: 0;
+	trackHeight: 16;
+	verticalGap: 2;
+	fontSize: 12;
+	fontWeight: normal;
+}

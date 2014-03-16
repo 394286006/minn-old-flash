@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/halo" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="650" height="85" verticalScrollPolicy="off" horizontalScrollPolicy="off" creationPolicy="all" creationComplete="canvas1_creationCompleteHandler(event)" xmlns:s1="library://ns.adobe.com/flex/spark">
+	<fx:Script>
+		<![CDATA[
+			import com.adobe.serialization.json.JSON;
+			
+			import flexmdi.events.MinnMessageEvent;
+			
+			import minn.common.DrawLine;
+			
+			import mx.controls.Alert;
+			import mx.core.UIComponent;
+			import mx.events.FlexEvent;
+			
+			import skin.ButtonSkin;
+			private var pricearr:Array=new Array();
+			protected function canvas1_creationCompleteHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				pricearr.push({name:''});
+				for(var i:int=1;i<100;i++){
+					
+					pricearr.push({name:i*100});
+				}
+				
+//				price_start_id.dataProvider=pricearr;
+//				price_end_id.dataProvider=pricearr;
+				
+				var line:DrawLine=new DrawLine();
+				line.drawLine(100,0,100,11,0x635f5f,5);
+				this.addChild(line);
+				line=new DrawLine();
+				line.drawLine(500,0,500,11,0x635f5f,5);
+				this.addChild(line);
+				var closeui:UIComponent=new UIComponent();
+				closeui.width=12;
+				closeui.height=12;
+				closeui.buttonMode=true;
+				closeui.useHandCursor=true;
+				var graphics:Graphics=closeui.graphics;
+				graphics.lineStyle(3, 0xAF0000);
+				graphics.moveTo(0,0);
+				graphics.lineTo(12,12);
+				graphics.moveTo(0,12);
+				graphics.lineTo(12,0);
+				closeui.x=580;
+				closeui.y=55;
+				closeui.addEventListener(MouseEvent.CLICK,closeSearchProductCard);
+				this.addChild(closeui);
+				
+				
+				var loader:URLLoader=new URLLoader();
+				var request:URLRequest =  new URLRequest(Config.CATEGORY_MENU);
+				loader.addEventListener(Event.COMPLETE,menuResult);
+				loader.load(request);
+			}
+			/**
+			 * 加载类别菜单
+			 **/ 
+			private function menuResult(evt:Event):void{
+				var loader:URLLoader=URLLoader(evt.target);
+				var menus:Array=JSON.decode(decodeURIComponent(loader.data));
+				maxcategory_id.dataProvider=menus;
+				maxcategory_id.selectedIndex=-1;
+				category_id.dataProvider=menus[0].children;
+				category_id.selectedIndex=-1;
+			}
+			private function closeSearchProductCard(evt:MouseEvent):void{
+				mainApp(parent).showSearchProductPanelHandler();
+			}
+			
+			private function queryProductHandler(evt:MouseEvent):void{
+				var condition:Object=new Object();
+				condition.type_name=name_id.text;
+				condition.type_maxcategory_id='';
+				condition.type_category_id='';
+				if(maxcategory_id.selectedIndex>0){
+					var maxcategory_id:String=maxcategory_id.selectedItem.id;
+					condition.type_maxcategory_id=maxcategory_id;
+				}
+				//				else{
+				//					condition.type_maxcategory_id='';
+				//				}
+				if(category_id.selectedIndex>0){
+					var category_id:String=category_id.selectedItem.id;
+					condition.type_category_id=category_id;
+				}
+				//				else{
+				//					condition.type_category_id='';
+				//				}
+				condition.type_price_start=price_start_id.text;
+				condition.type_price_end=price_end_id.text;
+				this.dispatchEvent(new MinnMessageEvent(MinnMessageEvent.MESSAGE+"searchProduct",condition,true));
+				
+			}
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+
+		
+	
+	<mx:Spacer height="100%"/>
+	<mx:VBox width="640" height="100%" backgroundAlpha="1" verticalScrollPolicy="off" horizontalScrollPolicy="off" backgroundColor="#ffffff">
+
+	
+	  <mx:Spacer height="5"/>
+	<mx:HBox horizontalGap="0" width="100%" >
+		<mx:Label text="名称:"/>
+		<mx:TextInput id="name_id"/>
+		<mx:Label text="大类:"/>
+		<mx:ComboBox width="180" labelField="name" id="maxcategory_id" change="{category_id.dataProvider=maxcategory_id.selectedItem.children}"/>
+		<mx:Label text="小类别" height="18" width="45" id="label2"/>
+		<mx:ComboBox width="180" labelField="name" id="category_id"/>
+	</mx:HBox>
+		<mx:HBox horizontalGap="0" width="100%"> 
+			<mx:Label text="价格范围"  id="label4"/>
+			<mx:ComboBox labelField="name" id="price_start_id"/>
+			<mx:Label text="~~"/><mx:ComboBox labelField="name" id="price_end_id"/>
+			<mx:Spacer width="10"/>
+			<s1:Button label="查找" skinClass="{skin.ButtonSkin}" buttonMode="true" useHandCursor="true" click="queryProductHandler(event)"/>
+		</mx:HBox>
+		<mx:Spacer height="3"/>
+	</mx:VBox>
+
+		
+	</mx:VBox>
+

@@ -1,0 +1,629 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" 
+		 resize="panel1_resizeHandler(event)"  
+		 creationComplete="panel1_creationCompleteHandler(event)" styleName="panelw"  layout="vertical" currentState="browse" paddingTop="2"
+		 xmlns:component="mvc.view.front.product.component.*">
+	<mx:Metadata>
+			[Event(name="purchase", type="mvc.view.front.product.event.ProductDetailEvent")]
+			[Event(name="compare", type="mvc.view.front.product.event.ProductDetailEvent")]
+			[Event(name="details", type="mvc.view.front.product.event.ProductDetailEvent")]
+	</mx:Metadata>
+	<mx:Script>
+		<![CDATA[
+			import minn.common.PageToolBar;
+			import minn.event.PageEvent;
+			
+			import mvc.model.merchandise.vo.Product;
+			import mvc.view.front.product.event.ProductDetailEvent;
+			import mvc.view.front.product.vo.ProductFilter;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.controls.Spacer;
+			import mx.core.DragSource;
+			import mx.effects.Effect;
+			import mx.effects.Fade;
+			import mx.effects.Move;
+			import mx.events.DragEvent;
+			import mx.events.EffectEvent;
+			import mx.events.FlexEvent;
+			import mx.events.ResizeEvent;
+			import mx.managers.DragManager;
+			
+			import spark.components.Group;
+			import spark.components.HGroup;
+			
+//			private var titleButtons:ProductTitleButton=null;
+			private var titleButtons:ProductTitleBar=null;
+			private var accepted:Dictionary = new Dictionary();
+			private var _catalog:ArrayCollection=null;
+			private var productViews:ArrayCollection;
+			private var filterCount:int;
+			private var hascreatecomplete:Boolean=false;
+			public var iscurDetail:Boolean=false;
+//			[Bindable]
+//			private var _cartCount:int;
+			
+			public function set cartCount(cc:int):void{
+//				titleButtons.cartCount=cc;
+			}
+			
+			
+			private var thumbnailState:String = 'browse'; //either 'browse' or 'compare'
+			
+			override protected function createChildren():void
+			{
+				super.createChildren();
+//				titleButtons = new ProductTitleButton();
+				titleButtons = new ProductTitleBar();
+				this.title="浏览";
+			
+				//this.titleDisplay.text="浏览";
+				//(titleDisplay.parent as Group).addElement(titleButtons);
+				titleBar.addChild(titleButtons);
+			
+			}
+			/**
+			 * 获取分页对象
+			 **/ 
+			public function get pageBar():PageToolBar{
+				return titleButtons.pagePar;
+			}
+			
+			override protected function layoutChrome(unscaledWidth:Number, unscaledHeight:Number):void
+			{        
+				super.layoutChrome(unscaledWidth, unscaledHeight);
+				//when adding to a UIComponent (not a Container) need explicit width/height
+				titleButtons.width = unscaledWidth ;/// 2; //make it big so as we add cart items we can stretch)
+				titleButtons.height = titleButtons.measuredHeight;
+				//this placement algorithm is pretty hacky, there are better ways that probably
+				//involve copying more of the Panel layoutChrome method and supporting methods
+				titleButtons.move(statusTextField.x - titleButtons.width, titleTextField.y);
+			}
+			[Bindable]
+			public function set catalog(cag:ArrayCollection):void{
+				this._catalog=cag;
+				currentState = "browse";
+			
+				createProductViews();
+			}
+			public function get catalog():ArrayCollection{
+				return this._catalog;
+			
+			}
+			
+			private function createProductViews():void
+			{
+				if (productViews != null)
+				{
+//					for (i=0; i < productViews.length; i++)
+//					{
+//						productViewContent.removeChild(productViews[i]);
+//					}
+					productViews.removeAll();
+					productViewContent.removeAllChildren();
+				}else{
+					productViews = new ArrayCollection();
+				}
+				
+				var row:int = 0;
+				var col:int = -1;
+//				var n:int = catalog.length;
+			
+				filterCount =  catalog.length;
+//			    Alert.show( catalog.length+'');
+				for (var k:int=0; k <  catalog.length; k++)
+				{
+
+					var productView:ProductView = new ProductView();
+					
+					productViews.addItem(productView);
+					productView.showInAutomationHierarchy=true;
+					productViewContent.addChild(productView);
+					productView.product = catalog.getItemAt(k) as Product;
+					accepted[productView.product] = true;
+				
+					productView.addEventListener(ProductDetailEvent.PURCHASE, productDetailEventHandler);
+					productView.addEventListener(ProductDetailEvent.COMPARE, productDetailEventHandler);
+					productView.addEventListener(ProductDetailEvent.DETAILS, productDetailEventHandler);
+					productView.addEventListener(ProductDetailEvent.BROWSE, productBrowseEventHandler);
+					productView.addEventListener(DragEvent.DRAG_START,productDragStartHandler);
+				}
+               if(productViews.length>0)
+				layoutCatalog();
+			}
+			private function layoutCatalog():Effect
+			{
+				var tileWidth:Number;
+				var tileHeight:Number;
+				var numCols:int;
+				
+				if (filterCount > 9 || currentState == "compare")
+				{
+					numCols = 4;
+					tileWidth = ProductView.COL_WIDTH_4;
+					tileWidth = currentState == "compare"
+						? ProductView.COMPARE_WIDTH
+						: ProductView.COL_WIDTH_4
+					tileHeight = currentState == "compare"
+						? height - 4
+						: ProductView.COL_HEIGHT_4;
+				}
+				else if (filterCount > 4)
+				{
+					numCols = 3;
+					tileWidth = ProductView.COL_WIDTH_3;
+					tileHeight = ProductView.COL_HEIGHT_3;
+				}
+				else if (filterCount <= 9)
+				{
+					numCols = 2;
+					tileWidth = ProductView.COL_WIDTH_2;
+					tileHeight = ProductView.COL_HEIGHT_2;
+				}
+				else
+				{
+				}
+				
+//				numCols=6;
+//				Alert.show(productViewContent.width.toString());
+				numCols=productViewContent.width/ProductView.COL_WIDTH_4;
+//				Alert.show(numCols.toString());
+				var row:int = 0;
+				var col:int = -1;
+			
+				var move:Move = null;
+				
+//				var n:int = catalog.length;
+//				Alert.show(catalog.length +'');
+			
+//				if(catalog.length>0&&productViews!=null&&productViews.length==0){
+//					createProductViews();
+//				}
+				for (var i:int = 0 ; i < productViews.length ; i++)
+				{
+					var product:Product = catalog.getItemAt(i) as Product;
+					var productView:ProductView = productViews.getItemAt(i) as ProductView;
+//					Alert.show(accepted[product]+'');
+					if (accepted[product])
+					{
+//						productView.currentState ="cols"+numCols ;
+						col++;
+						if (col > numCols - 1)
+						{
+							row++;
+							col = 0;
+						}
+						
+						var xTo:Number = col * (ProductView.COL_WIDTH_4 + ProductView.HORIZONTAL_GAP);
+						var yTo:Number = row * (ProductView.COL_HEIGHT_4);
+						
+						// If the thumbnail is already visible
+						// animate it to its new position.
+						if (productView.visible)
+						{
+							// Animate only if the position is different
+							// from its current position.
+							if (productView.x != xTo || productView.y != yTo)
+							{
+								move = new Move(productView);
+								move.addEventListener(EffectEvent.EFFECT_END,function(event:EffectEvent):void{
+									ProductView(Move(event.target).target).rollOutHandler();
+								});
+								move.xTo = xTo;
+								move.yTo = yTo;
+								move.play();
+								
+							}
+						}
+							
+							// If the thumbnail was not previously visible, sets its
+							// x and y coordinates. We'll make it reappear after all
+							// the visible productViews have reached their new position.
+						else
+						{
+							productView.x = xTo;
+							productView.y = yTo;
+							productView.visible = true;
+							productView.includeInLayout = true;
+						}
+					}
+					else
+					{
+						productView.visible = false;
+						productView.includeInLayout = false;
+					}
+				}
+				
+				if (!move)
+				{
+					// No visible productViews were animated to a new position;
+					// fade in newly selected productViews right away.
+					fadeInProductViews();
+				}
+				else
+				{
+					//since movement is happening get the scrollbar back to the top
+					productViewContent.verticalScrollPosition = 0;
+					// Fade in newly selected productViews after the last
+					// visible thumbnail has moved to its new position.
+					move.addEventListener(EffectEvent.EFFECT_END,
+						function(event:EffectEvent):void
+						{
+							fadeInProductViews();
+						});
+				}
+				//return the last move to watch
+				return move;
+			}
+			
+			private function fadeInProductViews():void
+			{
+//				var n:int = productViews.length;
+				var effect:Fade = new Fade();
+				effect.alphaTo = 1;
+				var targets:Array = [];
+				for (var i:int = 0; i <productViews.length ; i++)
+				{
+					var productView:ProductView = productViews[i];
+					if (accepted[productView.product] && !productView.visible)
+					{
+						productView.alpha = 0;
+						productView.visible = true;
+						targets.push(productView);
+					}
+				}
+				if (targets.length > 0)
+				{
+					effect.targets = targets;
+					effect.play();
+				}
+			}
+			private function productBrowseEventHandler(evt:ProductDetailEvent):void{
+				        thumbnailState = "browse"
+						currentState = "browse";
+						
+						for (var i:int = 0; i < productViews.length; i++)
+						{
+							var productView:ProductView = productViews[i];
+							productView.iscompare=true;
+							productView.compare.label="比较";
+							productView.compare.toolTip="添加到比较列表";
+							var product:Product = productView.product;
+								accepted[product] = true;
+						}
+						layoutCatalog();
+//						filter(new ProductFilter(),true);
+//					Alert.show("show browse");
+			}
+			private function productDetailEventHandler(evt:ProductDetailEvent):void
+			{
+			
+//					Alert.show(event.type);
+				iscurDetail=false;
+				if (evt.type == ProductDetailEvent.DETAILS)
+				{
+					iscurDetail=true;
+//					currentState = "details";
+					showDetails(evt.product);
+				}
+				else if (evt.type == ProductDetailEvent.BROWSE)
+				{
+					if (thumbnailState == "browse")
+					{                
+						currentState = "browse";
+						layoutCatalog();
+					}
+					else
+					{
+						compare();
+					}
+				}
+				else
+				{
+					dispatchEvent(evt);
+				}
+			}
+			public function showDetails(product:Product,isresize:Boolean=false):void
+			{
+//				Alert.show(currentState); 
+				if (currentState == "details")
+				{
+					productdetail_id.product = product;
+//					return;
+				}
+				
+				var row:int = -1;
+				
+				//should be computed using border metrics instead of hard-coding the 20, but...
+				var xTo:Number = productViewContent.width - ProductView.COL_WIDTH_4 - 20;
+				if(isresize)
+					xTo=productdetail_id.width+20;
+				var yTo:Number;
+				
+				
+				var first:Boolean = true;
+				var selectedProductView:ProductView;
+				
+//				var n:int = productViews.length;
+				for (var i:int = 0; i < productViews.length; i++)
+				{
+					var productView:ProductView = productViews.getItemAt(i) as ProductView;
+					
+					if (productView.visible)
+					{
+						row++;
+						yTo = row * (ProductView.COL_HEIGHT_4 + ProductView.VERTICAL_GAP);
+//						productView.currentState = "cols4";
+//						trace(productView.x+":"+xTo);
+						
+						if (productView.x != xTo || productView.y != yTo)
+						{
+							var move:Move= new Move(productView);
+//							Alert.show(move.toString());
+							
+							if (first)
+							{
+								currentState = "details";
+								productdetail_id.product = product;
+								first = false;
+							}
+							move.addEventListener(EffectEvent.EFFECT_END,
+								function(event:EffectEvent):void
+								{
+									
+									
+//									productdetail_id.product = product;
+									//										productView.rollOverHandler();
+									//			
+//									productView.visible=true;
+//									productView.rollOverHandler();
+//									productView.mouseEnabled=true;
+//									productView.mouseFocusEnabled=true;
+//									productView.ism=false;
+//									productView.validationSubField;
+//									ProductView(Move(event.target).target).fl_id.visible=true;
+//									ProductView(Move(event.target).target).fl_id.includeInLayout=true;
+									ProductView(Move(event.target).target).rollOutHandler();
+								});
+							move.xTo = xTo;
+							move.yTo = yTo;
+							move.play();
+						}
+						
+//						if (productView.product.id == product.id)
+//						{
+//							selectedProductView = productView;
+//						}
+					}
+				}
+//				if (selectedProductView != null&&move!=null)
+//				{
+//					//make sure that the selected productView is visible in the list on the right
+//					
+//					move.addEventListener(EffectEvent.EFFECT_END,
+//						function(e:EffectEvent):void
+//						{
+//							
+//							var curpos:int = productViewContent.verticalScrollPosition;
+//							if (selectedProductView.y < curpos)
+//							{
+//								productViewContent.verticalScrollPosition = y;
+//							}
+//							else if (selectedProductView.y + ProductView.COL_HEIGHT_4 > curpos + productViewContent.height)
+//							{
+//								//this logic doesn't seem to be perfect but it will do
+//								var diff:int = selectedProductView.y - (curpos + productViewContent.height)
+//								productViewContent.verticalScrollPosition += diff + ProductView.COL_HEIGHT_4 + ProductView.VERTICAL_GAP;
+//							}
+//						});
+//				}
+				
+			}
+		
+			protected function panel1_creationCompleteHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				hascreatecomplete=true;
+			}
+            
+			
+			private function updateCompleteHandler(){
+//				Alert.show(currentState);
+				if(iscurDetail)showDetails(productdetail_id.product);//return;
+				if(hascreatecomplete&&(currentState == "browse")){
+					layoutCatalog();
+				}
+			}
+
+			protected function panel1_resizeHandler(event:ResizeEvent=null):void
+			{
+				// TODO Auto-generated method stub
+//				Alert.show(currentState);
+//				if(hascreatecomplete&&(currentState == "details")){
+//					currentState='';
+//					layoutCatalog();
+//					productdetail_id.width=this.width-ProductView.COL_WIDTH_4-50;
+				if(currentState == "details"&&productViews!=null)
+					showDetails(productdetail_id.product,true);
+//				};
+				
+			}
+			private function productDragStartHandler(event:MouseEvent):void
+			{
+				if (DragManager.isDragging == false)
+				{
+					var productView:ProductView = event.target as ProductView;
+					var ds:DragSource = new DragSource();
+					ds.addData(productView.product, "product");
+					
+					var di:ProductView = new ProductView();
+					di.product = productView.product;
+					
+					//the offset logic is honestly not the most intuitive but
+					//it's necessary to get the dragProxy positioned correctly
+					DragManager.doDrag(productViewContent, ds, event, di, -productView.x, 
+						-productView.y + productViewContent.verticalScrollPosition, 
+						0.5, false);
+				}    
+			}
+			
+			public function filter(productFilter:ProductFilter, live:Boolean):void
+			{
+//				Alert.show("brows");
+				currentState = "browse";
+				thumbnailState = "browse";
+				var count:int=0;
+//				var n:int = productViews.length;
+				var fadeOut:Fade = new Fade();
+				fadeOut.alphaFrom = 1;
+				fadeOut.alphaTo = .1;
+				var targets:Array = [];
+				for (var i:int = 0; i <  productViews.length; i++)
+				{
+					var productView:ProductView = productViews[i];
+						productView.iscompare=true;
+						productView.compare.label="比较";
+						productView.compare.toolTip="添加到比较列表";
+					var product:Product = productView.product;
+					accepted[product] = true;
+					if (productFilter.accept(product))
+					{
+						accepted[product] = true;
+						productView.alpha = 1;    
+						count++;
+					}
+					else
+					{
+						accepted[product] = false;
+						if (live)
+						{
+							productView.alpha = 0.1;
+						}
+						else if (productView.alpha == 1) //only fade if we hadn't started
+						{
+							targets.push(productView);
+						}
+					}
+				}
+				productFilter.count = count;
+				filterCount = count;
+           
+				if (targets.length > 0)    
+				{
+					fadeOut.targets = targets;
+					fadeOut.play();
+					fadeOut.addEventListener(EffectEvent.EFFECT_END,
+						function(event:EffectEvent):void
+						{
+							layoutCatalog();
+						});
+				}
+				else if (!live)
+				{
+					layoutCatalog();
+				}
+			}
+			public function compare(toCompare:Array=null):void
+			{
+//				Alert.show("compare");
+				currentState = "compare";
+				thumbnailState = "compare";
+				if (toCompare != null)
+				{
+//					var n:int = productViews.length;
+//					Alert.show(""+n+"");
+						
+					for (var i:int = 0; i <  productViews.length; i++)
+					{
+						accepted[productViews[i].product] = false;
+						
+						for (var j:int=0; j < toCompare.length; j++)
+						{
+							if(productViews[i].product.id==toCompare[j].id){
+								//							if(!accepted.hasOwnProperty(toCompare[i]))
+								accepted[productViews[i].product] = true;
+								(productViews[i] as ProductView).iscompare=false;
+								(productViews[i] as ProductView).compare.label="列表";
+								(productViews[i] as ProductView).compare.toolTip="产品列表";
+								//							else
+								//								accepted[toCompare[i]] = true;
+								break;
+						}
+					}
+//					for (i=0; i < toCompare.length; i++)
+//					{
+//						for (var i:int = 0; i < n; i++)
+//						{
+//						if(productViews[i].product.id==toCompare[i].id){
+////							if(!accepted.hasOwnProperty(toCompare[i]))
+//						         accepted[productViews[i].product] = true;
+////							else
+////								accepted[toCompare[i]] = true;
+//								 break;
+//						}
+//						}
+//						
+					}
+				}
+				var lastEffect:Effect = layoutCatalog();
+				if (lastEffect != null)
+				{
+					lastEffect.addEventListener(EffectEvent.EFFECT_END,
+						function (event:EffectEvent):void
+						{
+							setCompareState();
+						});
+				}
+				else
+				{
+					setCompareState();
+				}
+			}
+			
+			private function setCompareState():void
+			{
+				//avoid an issue if the user clicks quickly where we move into
+				//compare state even though we're no longer in compare
+				if (currentState == "compare") 
+				{
+//					var n:int = productViews.length;
+					for (var i:int = 0; i < productViews.length; i++)
+					{
+						var productView:ProductView = productViews[i];
+						if (accepted[productView.product])
+						{
+//							productView.currentState = "compare";
+						}
+					}
+					
+				}
+			}
+		]]>
+	</mx:Script>
+	<!--mx:Binding source="cartCount" destination="titleButtons.cartCount" /-->
+	<mx:states>
+		<mx:State name="browse">
+			<mx:SetProperty name="title" value="浏览"/>
+		</mx:State>
+		<mx:State name="compare">
+			<mx:SetProperty name="title" value="商品比较"/>
+		</mx:State>
+		
+		<mx:State name="details">
+			<mx:SetProperty name="title" value="产品详细"/>
+			<mx:SetProperty target="{productdetail_id}" name="visible" value="true"/>
+			<mx:SetProperty target="{productdetail_id}" name="includeInLayout" value="true"/>
+		</mx:State>
+	</mx:states>
+	<mx:Canvas width="100%" height="100%"
+			   verticalScrollPolicy="off"
+			   horizontalScrollPolicy="off"
+			   >
+	<mx:Canvas width="100%" height="100%" id="productViewContent" horizontalScrollPolicy="off" resize="updateCompleteHandler()" >
+	</mx:Canvas>
+	<component:ProductDetails id="productdetail_id"  width="{this.width-ProductView.COL_WIDTH_4-50}" visible="false" includeInLayout="false"  horizontalScrollPolicy="off"
+							  verticalScrollPolicy="off" height="100%" browse="productDetailEventHandler(event)"/> 
+	</mx:Canvas>
+
+</mx:Panel>

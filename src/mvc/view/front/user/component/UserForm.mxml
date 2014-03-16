@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					  xmlns:s="library://ns.adobe.com/flex/spark" 
+					  xmlns:mx="library://ns.adobe.com/flex/mx" 
+					  xmlns:containers="flexmdi.containers.*" 
+					  layout="absolute" 
+					  width="400" 
+					  height="300" 
+					  initialize="mdiwindow1_initializeHandler(event)" 
+					  creationComplete="mdiwindow1_creationCompleteHandler(event)"
+					  remove="titlewindow_removeHandler(event)">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import flash.external.ExternalInterface;
+			
+			import flexmdi.events.MessageEvent;
+			
+			
+			import mvc.ApplicationFacade;
+			
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			import mx.events.ModuleEvent;
+			import mx.managers.PopUpManager;
+			import mx.modules.IModuleInfo;
+			import mx.modules.ModuleManager;
+			
+//			public var refunction:Function;
+			public var assetModule:IModuleInfo;
+			public var sm:Object;
+			private var path:String;
+			private var appFacade:ApplicationFacade= ApplicationFacade.getInstance();
+//           private var ml:LoginPanel=null;
+			
+		
+			protected function mdiwindow1_initializeHandler(event:FlexEvent):void
+			{
+				//				moduleLoader.loadModule("mvc/view/login/component/loginPanel.swf");
+				this.addEventListener("__loginmessage",logininfo);
+				this.addEventListener("__logoutmessage",logoutinfo);
+			}
+			
+			/**
+			 * 登录信息处理
+			 */ 
+			public function logininfo(evt):void{
+//				Alert.show('evt.data.loginName');
+				this.parentDocument.logininfo(evt.data);
+				PopUpManager.removePopUp(this);
+			}
+			public function logoutinfo(evt:MessageEvent):void{
+				//				Alert.show('evt.data.loginName');
+				ExternalInterface.call("window.close()");
+			}
+			protected function mdiwindow1_creationCompleteHandler(event:FlexEvent):void
+			{
+				
+				// TODO Auto-generated method stub
+//				var o:Object=new Object();
+//				o.t=1;
+//				moduleLoader.data=1;
+		
+//				moduleLoader.da
+//				moduleLoader.loadModule("mvc/view/login/component/loginPanel.swf");
+//				moduleLoader
+//				Alert.show('c');
+//				ml=moduleLoader.child as LoginPanel;
+//				Alert.show(ml.toString())
+//				assetModule = ModuleManager.getModule("mvc/view/login/component/loginPanel.swf");    
+//				assetModule.addEventListener("ready", getModuleInstance);
+//				assetModule.load(null, null, null, this.parentApplication.moduleFactory);
+				moduleLoader.loadModule(path);
+//				appFacade.startup(this);
+			}
+			        
+			public function loadModule(path:String):void{
+//				moduleLoader.unloadModule();
+				this.path=path;
+				
+			}
+
+
+
+			protected function moduleLoader_readyHandler(event:ModuleEvent):void
+			{
+			
+				// TODO Auto-generated method stub
+//				var ml:*=moduleLoader.child as IModuleInterface;
+//				ml.
+//				var d:Object=moduleLoader.child;
+				this.title=moduleLoader.child.name;
+//				d.test();
+//				var ml:LoginPanel=LoginPanel(d);
+//				Alert.show(d.getMod1());
+//				d.test('d');
+//				this.parentApplication.test(d);
+				
+			}
+			
+		
+
+
+			/**
+			 *当移除窗口时将会实现删除所有引用操作
+			 */
+			protected function titlewindow_removeHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+//				Alert.show('remove');
+//				moduleLoader.unloadModule();
+			}
+
+		]]>
+	</fx:Script>
+	<mx:ModuleLoader id="moduleLoader" width="100%" height="100%"  ready="moduleLoader_readyHandler(event)">
+	</mx:ModuleLoader>
+	
+</mx:TitleWindow>

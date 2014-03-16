@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml"
+		    name="test" currentState="showFilter" 
+		   layout="absolute" width="100%" height="100%" xmlns:component="mvc.view.front.product.component.*" 
+		   creationComplete="module1_creationCompleteHandler(event)" >
+	<mx:Style source="assets/css/producShowPanel.css"/>
+	<mx:Script>
+		<![CDATA[
+			import com.adobe.serialization.json.JSON;
+			
+			import flexmdi.events.MinnMessageEvent;
+			import flexmdi.events.MinnMessageEventManager;
+			
+			import minn.event.PageEvent;
+			import minn.message.Message;
+			import minn.util.MinnUtil;
+			
+			import mvc.controller.ControllerCommand;
+			import mvc.controller.ControllerService;
+			import mvc.model.merchandise.MerchandiseProxy;
+			import mvc.model.merchandise.vo.Product;
+			import mvc.view.front.product.event.ProductDetailEvent;
+			
+			import mx.collections.ArrayCollection;
+			import mx.collections.IViewCursor;
+			import mx.controls.Alert;
+			import mx.effects.Move;
+			import mx.events.FlexEvent;
+			import mx.events.ResizeEvent;
+			import mx.events.SliderEvent;
+			import mx.events.StateChangeEvent;
+			import mx.rpc.events.ResultEvent;
+
+			private var mv:Move=null;
+			
+			private var ptestdata:Array=[{id:"1",name:"Nokia 6010",descript:"Easy to use without sacrificing style, the Nokia 6010 phone offers functional " +
+				"voice communication supported by text messaging, multimedia messaging, mobile internet, games and more",price:"99.99"
+			,categoryName:"6000",_photos:["productdata/pic/level1/1234567.gif","productdata/pic/100_1764.JPG"]}
+			,{id:"2",name:"Nokia 3100 Blue",descript:"Light up the night with a glow-in-the-dark cover - when it's charged with light you can easily find your phone in the dark. When you get a call, the Nokia 3100 phone flashes in tune with your ringing tone. And when you snap on a Nokia Xpress-on™ gaming cover*, you'll get luminescent light effects in time to the gaming action.",
+				price:"139"
+				,categoryName:"3000",_photos:["productdata/pic/level1/1234567.jpg","productdata/pic/Nokia_3120.gif","productdata/pic/Nokia_3220.gif"]}
+			,{id:"3",name:"Nokia 3100 Pink",descript:"Light up the night with a glow-in-the-dark cover - when it's charged with light you can easily find your phone in the dark. When you get a call, the Nokia 3100 phone flashes in tune with your ringing tone. And when you snap on a Nokia Xpress-on™ gaming cover*, you'll get luminescent light effects in time to the gaming action.",
+				price:"139"
+				,categoryName:"3000",_photos:["productdata/pic/level1/20101117.jpg","productdata/pic/level1/20101013(001).jpg"]}
+			,{id:"4",name:"Nokia 3120",descript:"Easy to use without sacrificing style, the Nokia 6010 phone offers functional " +
+				"voice communication supported by text messaging, multimedia messaging, mobile internet, games and more",price:"99.99"
+				,categoryName:"2000",_photos:["productdata/pic/100_1763.JPG","productdata/pic/100_1764.JPG"]}
+			,{id:"5",name:"Nokia 3220",descript:"Easy to use without sacrificing style, the Nokia 6010 phone offers functional " +
+				"voice communication supported by text messaging, multimedia messaging, mobile internet, games and more",price:"99.99"
+				,categoryName:"6000",_photos:["productdata/pic/100_1763.JPG","productdata/pic/100_1764.JPG"]}
+			,{id:"6",name:"Nokia 3650",descript:"Easy to use without sacrificing style, the Nokia 6010 phone offers functional " +
+				"voice communication supported by text messaging, multimedia messaging, mobile internet, games and more",price:"99.99"
+				,categoryName:"6000",_photos:["productdata/pic/100_1763.JPG","productdata/pic/100_1764.JPG"]}
+			,{id:"7",name:"Nokia 6820",descript:"Easy to use without sacrificing style, the Nokia 6010 phone offers functional " +
+				"voice communication supported by text messaging, multimedia messaging, mobile internet, games and more",price:"99.99"
+				,categoryName:"6000",_photos:["productdata/pic/100_1763.JPG","productdata/pic/100_1764.JPG"]}
+			,{id:"8",name:"Nokia 6010",descript:"Easy to use without sacrificing style, the Nokia 6010 phone offers functional " +
+				"voice communication supported by text messaging, multimedia messaging, mobile internet, games and more",price:"99.99"
+				,categoryName:"6000",_photos:["productdata/pic/100_1763.JPG","productdata/pic/100_1764.JPG"]}
+			,{id:"9",name:"Nokia 6670",descript:"Easy to use without sacrificing style, the Nokia 6010 phone offers functional " +
+				"voice communication supported by text messaging, multimedia messaging, mobile internet, games and more",price:"99.99"
+				,categoryName:"6000",_photos:["productdata/pic/100_1763.JPG","productdata/pic/100_1764.JPG"]}
+			,{id:"10",name:"Nokia 6010",descript:"Easy to use without sacrificing style, the Nokia 6010 phone offers functional " +
+				"voice communication supported by text messaging, multimedia messaging, mobile internet, games and more",price:"99.99"
+				,categoryName:"6000",_photos:["productdata/pic/100_1763.JPG","productdata/pic/100_1764.JPG"]}
+			,{id:"11",name:"Nokia 6620",descript:"Easy to use without sacrificing style, the Nokia 6010 phone offers functional " +
+				"voice communication supported by text messaging, multimedia messaging, mobile internet, games and more",price:"99.99"
+				,categoryName:"6000",_photos:["productdata/pic/100_1763.JPG","productdata/pic/100_1764.JPG"]}
+			];
+			
+			protected function module1_creationCompleteHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				mv=new Move();
+				MinnMessageEventManager.getInstance().addEventListener(MinnMessageEvent.MESSAGE+"templist",templist);
+				MinnMessageEventManager.getInstance().addEventListener("hideProductCart",function():void{
+				 // Alert.show('d');
+//					if(currentState != 'showFilter')
+//					Alert.show((hb.width-pf.width-10).toString());
+					productCategory_id.width=hb.width-pf.width-10;
+					
+					currentState = 'showFilter';
+//					productCategory_id.right=280;
+				});
+				MinnMessageEventManager.getInstance().addEventListener("showProductCart",function():void{
+//					 Alert.show("showProductCart");
+//					if(currentState != 'showCart')
+//					productCategory_id.width=hb.width-pc.width-10;
+					currentState = 'showCart';
+					
+					//					productCategory_id.right=280;
+				},true);
+				this.addEventListener(StateChangeEvent.CURRENT_STATE_CHANGE,function():void{
+					//Alert.show(currentState);
+				//	if(currentState == 'showFilter')
+					//	productCategory_id.width=hb.width-pf.width-10;
+					//if(currentState == 'showCart'){
+					//	productCategory_id.width=hb.width-pc.width-10;
+						
+					//	}
+				});
+				
+				MinnMessageEventManager.getInstance().addEventListener(ProductDetailEvent.DETAILS,function(evt:ProductDetailEvent):void{
+//				   Alert.show('details');
+					var p:Product=evt.product;
+					productCategory_id.showDetails(p);
+				});
+//				productService.send();
+				
+//				var ps:ArrayCollection=new ArrayCollection(ptestdata);
+//				var temp:ArrayCollection = new ArrayCollection();
+//				var cursor:IViewCursor = ps.createCursor();
+//				while (!cursor.afterLast)
+//				{
+//					var product:Product = new Product();
+//					product.fill(cursor.current);
+//					temp.addItem(product);
+//					cursor.moveNext();
+//				}
+//				catalog = temp;
+//				productCategory_id.pageBar.pageSize=3;
+				templist();
+				productCategory_id.pageBar.addEventListener(PageEvent.PAGE_CHANGE,queryProduct);
+				pf.search_id.addEventListener(MouseEvent.CLICK,queryProduct);
+				queryProduct();
+				
+			}
+			
+//			private function productServiceResultHandler(event:ResultEvent):void
+//			{
+//				//HTTPService returns an ArrayCollection for nested arrays
+//				//		Alert.show("dataS");
+//				var products:ArrayCollection = event.result.catalog.product;
+//				var temp:ArrayCollection = new ArrayCollection();
+//				var cursor:IViewCursor = products.createCursor();
+//				while (!cursor.afterLast)
+//				{
+//					var product:Product = new Product();
+//					product.fill(cursor.current);
+//					temp.addItem(product);
+//					cursor.moveNext();
+//				}
+//				catalog = temp;
+//		
+//			}
+			
+			private function moveEffectEndHandler():void{
+				//Alert.show(currentState);
+				//if(currentState == 'showFilter')
+				//	productCategory_id.width=hb.width-pf.width-10;
+				
+				//if(currentState == 'showCart'){
+				//	productCategory_id.width=hb.width-pc.width-10;
+				//	}
+			}
+			[Bindable]
+			private var _catalog:ArrayCollection=new ArrayCollection();
+			
+			[Bindable]
+			public function get catalog():ArrayCollection
+			{
+				return _catalog;
+			}
+			[Bindable]
+			public function set catalog(c:ArrayCollection):void
+			{
+				_catalog=c;
+				if (pf != null)
+				{
+//					pf.filter.count = c.length;
+				}
+			}
+			public function addToCompare(product:Product):void
+			{
+				//setting the state before adding the product avoids jumpiness in the transition, not sure why
+				if(currentState != 'showFilter')
+				currentState = 'showFilter';
+				pf.productList.addProduct(product);
+			}
+			
+			public function addToCart(product:Product):void
+			{
+//				//setting the state before adding the product avoids jumpiness in the transition, not sure why
+//				if(currentState != 'showCart')
+//				currentState = 'showCart'; 
+//				pc.productList.addProduct(product);
+//				Alert.show(this.parentDocument.toString());
+//				parentDocument.addProduct(product);
+				this.dispatchEvent(new MinnMessageEvent(MinnMessageEvent.MESSAGE+"add2Cart",product,true));
+
+			}
+			
+			private function queryProduct(e:Event=null):void{
+//				Alert.show('pagechange');
+				var condition:Object=new Object();
+				condition._sid=this.parentApplication.PRIVATEKEY;
+				if(e is PageEvent){
+					condition.pageIndex=(e as PageEvent).pageIndex;
+					condition.pageSize=(e as PageEvent).pageSize;
+					condition.recordCount=(e as PageEvent).recordCount;
+				}else{
+					productCategory_id.pageBar.recordCount = -1;
+					productCategory_id.pageBar.pageIndex = 0;
+					condition.pageIndex=productCategory_id.pageBar.pageIndex;
+					condition.pageSize=productCategory_id.pageBar.pageSize;
+					condition.recordCount=productCategory_id.pageBar.recordCount;
+				}
+				//				Alert.show(condition.pageIndex);
+				condition.type_name=pf.name_id.text;
+				condition.type_maxcategory_id='';
+				condition.type_category_id='';
+				if(pf.maxcategory_id.selectedIndex>0){
+					var maxcategory_id:String=pf.maxcategory_id.selectedItem.id;
+					condition.type_maxcategory_id=maxcategory_id;
+				}
+//				else{
+//					condition.type_maxcategory_id='';
+//				}
+				if(pf.category_id.selectedIndex>0){
+					var category_id:String=pf.category_id.selectedItem.id;
+					condition.type_category_id=category_id;
+				}
+//				else{
+//					condition.type_category_id='';
+//				}
+				condition.type_price_start=pf.price_start_id.text;
+				condition.type_price_end=pf.price_end_id.text;
+				var proxy:MerchandiseProxy=ControllerService.getInstance(ControllerCommand.MERCHANDISE_PROXY);
+				proxy.query(condition,queryProductResultHandler);
+			}
+			private function queryProductResultHandler(message:Message):void{
+//				catalog="";
+				if(message.messageSucess==1){
+				var arr:Array=JSON.decode(message.messageBody);
+				productCategory_id.pageBar.recordCount=int(message.otherInfo);
+				//										Alert.show(message.otherInfo.toString());
+				var ac:ArrayCollection=new ArrayCollection();
+				for(var i:int=0;i<arr.length;i++){
+					var v:Product=new Product();
+					ac.addItem(v);
+				}
+				MinnUtil.copyProperty(ac,arr);
+//				Alert.show(ac.length+'');
+				var tt:ArrayCollection=this.parentDocument.firstpage as ArrayCollection
+				for(var j:int=0;j<tt.length;j++){
+					var ex:Boolean=false;
+					for(var i:int=0;i<ac.length;i++){
+						if(tt.getItemAt(j).id==ac.getItemAt(i).id)
+						{
+							ex=true;
+							break;
+						}
+					}
+					if(!ex){
+						ac.addItem(tt.getItemAt(j));
+					}
+				}
+			
+				catalog=ac;
+//				productCategory_id.catalog=ac;
+				}else{
+					Alert.show(message.messageBody,"提示");
+				}
+//				Alert.show(catalog.length+'');
+			}
+			
+//			public var publicProduct:ArrayCollection=new ArrayCollection();
+			private function templist(evt:MinnMessageEvent=null):void{
+				var comparelist:ArrayCollection=parentDocument.compareList as ArrayCollection;
+				
+				for(var i:int=0;i<comparelist.length;i++){
+					pf.productList.addProduct(comparelist.getItemAt(i) as Product);
+				}
+//				catalog.addAll(comparelist);
+//				catalog.addAll(comparelist);
+//				parentDocument.compareList.removeAll();
+//				var cartlist:ArrayCollection=parentDocument.cartList as ArrayCollection;
+//				for( i=0;i<cartlist.length;i++){
+////					pc.productList.addProduct(cartlist.getItemAt(i) as Product);
+//					this.dispatchEvent(new MinnMessageEvent(MinnMessageEvent.MESSAGE+"add2Cart",cartlist.getItemAt(i) as Product,true));
+//				}
+//				for(var j:int=0;j<comparelist.length;j++){
+//					var p:Product=comparelist.getItemAt(j) as Product;
+//					for(var k:int=0;k<cartlist.length;k++){
+//						var p1:Product=cartlist.getItemAt(k) as Product;
+//						if(p.id!=p1.id)
+//							publicProduct.addItem(p);
+//					}
+//				}
+				
+//				parentDocument.cartList.removeAll();
+			}
+
+
+		]]>
+	</mx:Script>
+
+		
+	<mx:HBox width="100%" height="100%" id="hb" horizontalGap="0">
+		<!--creationComplete="if(catalog) pf.filter.count = catalog.length"-->
+		<component:ProductFilterPanel width="250" height="100%" id="pf"  filter="productCategory_id.filter(event.filter, event.live)"
+								 compare="productCategory_id.compare(pf.productList.getProducts())"
+								 creationComplete="if(catalog) pf.filter.count = catalog.length">
+		</component:ProductFilterPanel>
+		<mx:Spacer width="100%"/>
+		
+		<!--component:ProductCart width="350"  styleName="productCartStyle"  id="pc" >
+		</component:ProductCart-->
+	</mx:HBox>
+	<component:ProductCategory height="100%" width="{hb.width-pf.width-10}" styleName="productCategory"
+							   x="259" y="0" 
+							   id="productCategory_id" 
+							   effectStart="moveEffectEndHandler()"
+							   catalog="{catalog}"
+							   compare="addToCompare(event.product)"
+							   purchase="addToCart(event.product)"
+							   >
+	</component:ProductCategory>
+	
+	<mx:states>
+		<mx:State name="showFilter" >
+			<mx:SetStyle target="{productCategory_id}" name="left" value="260"/>
+		</mx:State>        
+		<mx:State name="showCart" >
+			<mx:SetStyle target="{productCategory_id}" name="right" value="360"/>
+		</mx:State>
+	</mx:states>
+	<mx:transitions>
+		<mx:Transition fromState="*" toState="*">
+			<mx:Move target="{productCategory_id}"/>
+		</mx:Transition>
+	</mx:transitions>
+</mx:Module>

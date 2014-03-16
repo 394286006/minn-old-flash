@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="utf-8"?>
+<containers:PopWin xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:s="library://ns.adobe.com/flex/halo" 
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				name="注册"
+				xmlns:containers="flexmdi.containers.*"
+				width="100%" height="100%" layout="vertical" verticalGap="0"
+				 fontSize="13"
+				removed="module1_removeHandler(event)" xmlns:common="minn.common.*" currentStateChange="popwin1_currentStateChangeHandler(event)"
+				xmlns:s1="library://ns.adobe.com/flex/spark" >
+	<fx:Style source="assets/css/app_css.css"/>
+	<fx:Script source="../../../../../mvc/base/FrontBaseImport.as"/>
+	<fx:Script>
+		<![CDATA[
+			import mvc.model.user.UserProxy;
+			
+			import mx.events.StateChangeEvent;
+			
+			[Bindable]
+			private var user:User=null;
+			
+			private var userProxy:UserProxy=null;
+			protected function module1_removeHandler(event:Event):void
+			{
+			}
+			
+			public function messageHandler(val:Object):void{
+				var type:String=val.type;
+				if(val.hasOwnProperty("item"))
+					user=val.item as User;
+				 currentState=type;
+				
+			}
+			private function click_Handler():void{
+				
+				var validatorErrorArray:Array = Validator.validateAll(validatorArray); 
+				var err:ValidationResultEvent; 
+				var errorMessageArray:Array = []; 
+				if(validatorErrorArray.length>0){
+					for each (err in validatorErrorArray) { 
+						errorMessageArray.push(err.message); 
+					} 
+					
+					if(errorMessageArray.length >0){
+						Alert.show(errorMessageArray.join("\n\n"), "请按照以下错误提示信息重新填写", Alert.OK,this.parentApplication as Sprite);
+						
+						return;
+					}
+				}
+				
+				if(userProxy==null)
+					userProxy=ControllerService.getInstance(ControllerCommand.USER_PROXY);
+				if(user==null){
+					user=new User();
+					user._sid=this.parentApplication.PRIVATEKEY;
+					user.userName_ch=userName_ch_id.text;
+					user.userName_en=userName_en_id.text;
+					user.password=password_id.text;
+					user.email=email_id.text;
+					user.qq_msn=qq_msn_id.text;
+					user.backemail=bakemail_id.text;
+				}
+				if(currentState=='Register'){
+					if(password_id.text!=confirm_id.text){
+						Alert.show("确认密码不正确!","提示",4,this.parentApplication as Sprite);
+						confirm_id.text="";
+						password_id.text="";
+						return;
+					}
+				
+					userProxy.add(user,addResultHandler);
+				}else if(currentState=='modify'){
+					if(password_id.text!=confirm_id.text){
+						Alert.show("确认密码不正确!","提示",4,this.parentApplication as Sprite);
+						confirm_id.text="";
+						return;
+					}
+					userProxy.modify(user,modifyResultHandler);
+				}
+				
+			}
+			
+			private function addResultHandler(message:Message):void{
+				Alert.show(message.messageBody,"提示",4,this.parentApplication as Sprite);
+                PopUpManager.removePopUp(this);				
+			}
+			private function modifyResultHandler(message:Message):void{
+				Alert.show(message.messageBody,"提示",4,this.parentApplication as Sprite);
+				this.parentDocument.user=user;
+				PopUpManager.removePopUp(this);			
+				
+			}
+		
+			
+			
+			protected function userName_en_id_mouseOutHandler(event:FocusEvent):void
+			{
+				if(userProxy==null)
+					userProxy=ControllerService.getInstance(ControllerCommand.USER_PROXY);
+				user=new User();
+				if(userName_en_id.text!=''){
+					user._sid=this.parentApplication.PRIVATEKEY;
+					user.userName_en=userName_en_id.text;
+					
+					userProxy.userCheck(user,userCheckResultHandler);
+				}
+			}
+			private function userCheckResultHandler(message:Message):void{
+				
+				if(message.messageSucess==0){
+					Alert.show(message.messageBody,"提示",4,this.parentApplication as Sprite);
+					userName_en_id.text="";
+				}
+				
+			}
+			
+			
+			private function emailValidator_valid(evt:ValidationResultEvent):void {
+				if(this.currentState=="Register"){
+					if(email_id.text==""&&bakemail_id.text=="")
+						Alert.show(evt.message,"提示",4,this.parentApplication as Sprite);
+					return;
+				}
+				
+			}
+			
+			private function emailValidator_invalid(evt:ValidationResultEvent):void {
+				if(this.currentState=="Register"){
+					if(email_id.text!=""&&bakemail_id.text!="")
+						Alert.show(evt.message,"提示",4,this.parentApplication as Sprite);
+					return;
+				}else 
+					if(this.currentState=="modify"){
+						//					Alert.show(evt.message,"提示");
+					}
+			}
+			
+			protected function popwin1_currentStateChangeHandler(event:StateChangeEvent):void
+			{
+				if(currentState=="Register"){
+					this.title='注册';
+					password_id.editable=true;
+					userName_ch_id.text='';
+					userName_en_id.text='';
+					confirm_id.text="";
+					password_id.text='';
+					email_id.text='';
+					qq_msn_id.text='';
+					bakemail_id.text="";
+				}
+				
+				else if(currentState=="modify"){
+					this.title='修改';
+					password_id.editable=false;
+					userName_ch_id.text=user.userName_ch;
+					userName_en_id.text=user.userName_en;
+					confirm_id.text=""
+					password_id.text=user.password;
+					email_id.text=user.email;
+					qq_msn_id.text=user.qq_msn;
+					bakemail_id.text=user.backemail;
+					modifypwd_id.includeInLayout=true;
+					modifypwd_id.visible=true;
+					pwd_id.visible=false;
+					pwd_id.includeInLayout=false;
+					conpwd_id.visible=false;
+					conpwd_id.includeInLayout=false;
+				}
+			}
+			
+
+			protected function modifypwd_id_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				pwd_id.visible=true;
+				pwd_id.includeInLayout=true;
+				conpwd_id.visible=true;
+				conpwd_id.includeInLayout=true;
+				
+				name_id.visible=false;
+				name_id.includeInLayout=false;
+				em_id.visible=false;
+				em_id.includeInLayout=false;
+				qm_id.visible=false;
+				qm_id.includeInLayout=false;
+				be_id.visible=false;
+				be_id.includeInLayout=false;
+			}
+
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+		<fx:Array id="validatorArray">
+			<mx:StringValidator id="userNameValidator"
+								source="{userName_en_id}" 
+								requiredFieldError="用户名不能为空！"
+								property="text" 
+								required="true" />
+			<mx:StringValidator id="password_idValidator"
+								source="{password_id}" 
+								requiredFieldError="密码不能为空！"
+								property="text" 
+								required="true" />
+			<mx:StringValidator id="confirm_idValidator"
+								source="{confirm_id}" 
+								requiredFieldError="确认密码不能为空！"
+								property="text" 
+								required="true" />
+			<mx:StringValidator id="userName_ch_idValidator"
+								source="{userName_ch_id}"  
+								requiredFieldError="昵称不能为空！"
+								property="text" 
+								required="true" />
+			<mx:EmailValidator  id="email_idValidator" 
+								source="{email_id}" 
+								requiredFieldError="email不能为空！"
+								valid="emailValidator_valid(event)"
+								invalid="emailValidator_invalid(event)"
+								property="text" 
+								required="true" />
+			<mx:EmailValidator id="bakemail_idValidator" 
+							   source="{bakemail_id}"  
+							   requiredFieldError="找回密码email不能为空！"
+							   valid="emailValidator_valid(event)"
+							   invalid="emailValidator_invalid(event)"
+							   property="text" 
+							   required="true" />
+		</fx:Array>
+		
+	</fx:Declarations>
+	
+	<containers:states>
+		<mx:State name="Register"/>
+		<mx:State name="modify"/>
+	</containers:states>
+	
+	<mx:Form id="loginForm" width="100%" height="100%">  
+		<mx:FormItem label="用户名:">
+			<mx:TextInput id="userName_en_id" text="minn" focusOut.Register="userName_en_id_mouseOutHandler(event)"/>
+		</mx:FormItem>
+		<mx:FormItem id="modifypwd_id" includeInLayout="false" visible="false" click="modifypwd_id_clickHandler(event)">
+			<common:MenuLabel text="修改密码"/>
+			</mx:FormItem>
+		<mx:FormItem label="密      码:"  direction="horizontal" id="pwd_id">
+			<mx:TextInput id="password_id" text="1234"  displayAsPassword="true"/><mx:Label text="密码由6~~8位的数字,字母或下划线组成"/>
+		</mx:FormItem>
+		<mx:FormItem  label="确认密码:" id="conpwd_id">
+			<mx:TextInput id="confirm_id"  displayAsPassword="true"/>
+		</mx:FormItem>    
+		<mx:FormItem label="昵称" direction="horizontal" id="name_id">
+			<mx:TextInput  id="userName_ch_id" />
+		</mx:FormItem>
+		<mx:FormItem  label="邮箱:"  direction="horizontal" id="em_id">
+			<!-- Add a TextInput control to the form for the Register view state. -->     
+			<mx:TextInput id="email_id"/><mx:Label text="联系时使用"/>
+		</mx:FormItem>    
+		<mx:FormItem label="QQ或MSN" id="qm_id">
+			<mx:TextInput  id="qq_msn_id" />
+		</mx:FormItem>
+		<mx:FormItem  label="找回密码邮箱:" direction="horizontal" id="be_id">
+			<mx:TextInput id="bakemail_id"/><mx:Label text="该邮件找回密码时使用,请慎重填写!"/>
+		</mx:FormItem>    
+	</mx:Form>
+	<mx:HBox width="100%" horizontalGap="10">
+		<mx:Spacer width="200" id="spacer1"/>
+		<!-- Set label of the control based on the view state.-->
+		<s1:Button id="loginButton" useHandCursor="true" buttonMode="true" skinClass="{skin.ShopCardBtn}"
+				     label.modify="修改" label.Register="注册" 
+				   click="click_Handler()"/>
+	</mx:HBox>
+	<mx:Spacer height="10"/>
+	<containers:transitions>
+		<mx:Transition fromState="*" toState="*">
+			<mx:Fade duration="800" alphaFrom="0" alphaTo="1" target="{loginForm}"/>
+		</mx:Transition>
+	</containers:transitions>
+	
+	
+</containers:PopWin>

@@ -1,0 +1,608 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Module xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		   xmlns:s="library://ns.adobe.com/flex/halo" 
+		   xmlns:mx="library://ns.adobe.com/flex/mx" 
+		   xmlns:common="minn.common.*" 
+		   xmlns:containers="flexmdi.containers.*" width="100%" height="100%"  layout="absolute" 
+		   xmlns:controls="flexmdi.controls.*" 
+		   creationComplete="application1_creationCompleteHandler(event)"
+		   xmlns:component="mvc.view.front.user.component.*" xmlns:commont="mvc.view.front.commont.*" resize="module1_resizeHandler(event)">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script source="mvc/base/FrontBaseImport.as"/>
+	<fx:Style source="assets/css/app_css.css"/>
+	<fx:Script>
+		<![CDATA[
+			/**
+			 * @author minn
+			 * @QQ 394286006
+			 * @email freemanfreelift@gmail.com
+			 */
+			import com.flashdynamix.motion.effects.core.ColorEffect;
+			import com.flashdynamix.motion.effects.core.FilterEffect;
+			import com.flashdynamix.motion.extras.Emitter;
+			import com.flashdynamix.motion.layers.BitmapLayer;
+			
+			import flash.filters.BlurFilter;
+			
+			import mvc.view.front.product.component.ShopCard;
+			import mvc.view.front.product.component.ShopCard2;
+			
+			import mx.events.IndexChangedEvent;
+			import mx.events.ResizeEvent;
+			[Bindable]
+			public var user:User=null; 
+			//			private var lom:LoginInfoAndExit=null;
+			private var lom:ExitOrModify=null;
+			[Bindable]
+			private var treeData:Array=[{label:"网站导航",children:[{label:"首页",data:1,url:"http://127.0.0.1:8009/minn/special/showPicdemo/demo1.html"},{label:"商品",data:1,url:"http://127.0.0.1:8009/minn/special/jqzoom_ev/demo/index.html"}
+				,{label:"使用手册",data:1,url:"http://127.0.0.1:8009/minn/special/zoomer/zoomer.html"},]},
+				{label:"友情链接",children:[{label:"test2",data:1,url:"http://127.0.0.1:8009/minn/index2.html"}]}
+			];
+			[Embed("assets/img/qqlogo.png")]
+			private var ic:Class;
+			[Embed(source="assets/magicFxBox.swf", symbol="Box")]
+			private var Box:Class;
+			
+			private var emittor :Emitter;
+			private var layer :BitmapLayer;
+			private var ct :ColorTransform;
+			private var bf :BlurFilter;
+			private var uilayer:UIComponent;
+			private var tx : Number;
+			private var ty : Number;
+			[Bindable] 
+			private var menubararr:Array =[{label:"QQ:394286006",icon:ic}];
+			//				<>
+			//					<menuitem label="咨询" data="1">
+			//						<menuitem label="MenuItem 1-A" data="1" icon='{ic}'/>
+			//						<menuitem label="MenuItem 1-B" data="1B" icon='{ic}'/>
+			//					</menuitem>
+			//					
+			//				</>;
+			private var mr:Resize=new Resize();
+			private var mym:Menu=null;
+			[Bindable]
+			public var cartCount:int;
+			
+			public var shopCard:ShopCard=new ShopCard();
+		
+			protected function button1_clickHandler(event:MouseEvent=null):void
+			{
+			}
+			
+			protected function magicFxHandler():void{
+				//			SWFProfiler.init(this);
+				//		Alert.show("show");
+//				tween = new TweensyGroup(false, true);
+				bf = new BlurFilter(10, 10, 2);
+				ct = new ColorTransform(1, 1, 1, 1, -115, -30, 70);
+				
+				layer = new BitmapLayer(this.width, titlemusic_id.height);
+				layer.add(new ColorEffect(new ColorTransform(1, 1, 1, 0.9)));
+				layer.add(new FilterEffect(bf));
+				emittor = new Emitter(Box, null, 2, 1, "0, 360", "1, 110", 1, BlendMode.ADD);
+				emittor.transform.colorTransform = ct;
+//				emittor.endColor = new ColorTransform(5, 2, 100, 1, 255, -255, -70, -255);
+				
+				layer.draw(emittor.holder);
+			    tx=500;
+			
+				addEvent(win, Event.ENTER_FRAME, draw);
+				addEvent(win, MouseEvent.MOUSE_MOVE, magicMove);
+				uilayer=new UIComponent();
+//				uilayer.percentWidth=100;
+				uilayer.addChild(layer);
+				titlemusic_id.addChild(uilayer);
+				
+			}
+			
+			private function magicMove(e :MouseEvent) : void {
+				var ttx:Number=stage.mouseX;
+				var tty:Number=stage.mouseY;
+				if(ttx<390)
+					ttx=390;
+				if(tty>titlemusic_id.height)
+					tty=titlemusic_id.height+10;
+				tx = ttx;
+				ty = tty;
+			}
+			
+			private function draw(e : Event) : void {
+				emittor.rotation += 20;
+				emittor.x += (tx - emittor.x) / 4;
+				emittor.y += (ty - emittor.y) / 4;
+			}
+			
+			protected function addEvent(ed : EventDispatcher, type : String, liststener : Function, priority : int = 0, useWeakReference : Boolean = true) : void {
+				ed.addEventListener(type, liststener, false, priority, useWeakReference);
+			}
+			
+			protected function removeEvent(ed : EventDispatcher, type : String, listener : Function) : void {
+				ed.removeEventListener(type, listener);
+			}
+			var blr:Blur=new Blur();
+			protected function application1_creationCompleteHandler(event:FlexEvent):void
+			{
+				
+//				WindowProxy.getInstance(mdi);
+				//				dd.setStyle("headerHeight",0);
+				//				dd
+				this.setChildIndex(win,0);
+				lom=new ExitOrModify();
+				//				
+				ExternalInterface.addCallback("callBack",callBack);
+//				shopCard=new ShopCard();
+//				var so:SharedObject=SharedObject.getLocal("user");
+//				if(so.data.hasOwnProperty("user"))
+//				{
+//					user=so.data.user as User;
+//				}
+				//				MinnMessageEventManager.getInstance().addEventListener("cartCount",function());
+				Alert.okLabel="确定";
+				
+				//				menubararr
+				//		       Menu.createMenu(ask_id,menubararr);
+				mym=Menu.createMenu(ask_id,menubararr);
+				mym.height=5;
+				mym.width=145;
+				//				mym.dataProvider=menubararr;
+				mym.addEventListener(MenuEvent.ITEM_CLICK,askitemClickHandler);
+				mr.heightTo=26;
+				mr.target=mym;
+//				Alert.show("loader");
+				MinnMessageEventManager.getInstance().addEventListener(MinnMessageEvent.MESSAGE+"loginSucesses",saveLocale);
+				MinnMessageEventManager.getInstance().addEventListener(MinnMessageEvent.MESSAGE+"modifyUser",modifyUser);
+				MinnMessageEventManager.getInstance().addEventListener(MinnMessageEvent.MESSAGE+"exit",exitLocal);
+				MinnMessageEventManager.getInstance().addEventListener(MinnMessageEvent.MESSAGE+"carCount",carCountHandler);
+				MinnMessageEventManager.getInstance().addEventListener(MinnMessageEvent.MESSAGE+"add2Cart",add2cartList);
+				MinnMessageEventManager.getInstance().addEventListener(MinnMessageEvent.MESSAGE+"add2compareList",add2compareList);
+//				MinnMessageEventManager.getInstance().addEventListener(ProductListEvent.ADD_PRODUCT,productListEventHandler);
+//				MinnMessageEventManager.getInstance().addEventListener(ProductListEvent.ADD_PRODUCT,productListEventHandler);
+//				MinnMessageEventManager.getInstance().addEventListener(ProductListEvent.DUPLICATE_PRODUCT,productListEventHandler);
+//				MinnMessageEventManager.getInstance().addEventListener(ProductListEvent.PRODUCT_QTY_CHANGE,productListEventHandler);
+//				MinnMessageEventManager.getInstance().addEventListener(ProductListEvent.REMOVE_PRODUCT,productListEventHandler);
+				
+				
+				for(var i:int=0;i<6;i++){
+					var rc:Rect=new Rect();
+					rc.drawRect();
+					titlepanel_id.addChild(rc);
+				}
+				var timer:Timer=new Timer(1000);
+				timer.addEventListener(TimerEvent.TIMER,timerHandler);
+				timer.start();
+				blr.duration=400;
+				blr.blurXTo=30;
+				blr.blurYTo=30;
+				blr.blurXFrom=0;
+				blr.blurYFrom=0;
+				
+				musicHandler();
+//				magicFxHandler();
+			}
+			private var count:int=0;
+			private function timerHandler(event:TimerEvent):void {
+//								Alert.show("show");
+				if(count==titlepanel_id.getChildren().length)
+					count=0;
+				blr.targets=[];
+				var rc:Rect=titlepanel_id.getChildAt(count) as Rect;
+				blr.target=rc;
+				blr.play(null,true);
+				
+				count++;
+			}
+			
+			private var mc:int=0;
+			private var mcb:Boolean=false;
+			private function musicHandler():void{
+				for(var i:int=0;i<53;i++){
+				
+					var dl:DrawLine=new DrawLine();
+					dl.height=45;
+					dl.width=10;
+					dl.startX=265+i*15;
+					dl.startY=45+mc;
+					dl.endX=265+i*15;
+					dl.endY=25+mc;
+					dl.drawLine(dl.startX,dl.startY,dl.endX,dl.endY,0xc3c4c8);
+					dl.addEventListener(MouseEvent.MOUSE_OVER,musicmouseoverHandler);
+					dl.addEventListener(MouseEvent.MOUSE_OUT,musicmouseoverHandler);
+					titlemusic_id.addChild(dl);
+					if(i%6==0){
+						mcb=!mcb;
+					}
+					if(!mcb){
+						mc++;
+					}else{
+						mc--;
+						
+					}
+				}
+				
+//				var mv:Move=new Move();
+//				mv.addEventListener(EffectEvent.EFFECT_END,function(evt:EffectEvent):void{
+//					//						Alert.show(Move(evt.target).targets.length+'');
+//						var m:Move=evt.target as Move;
+////						var mm:DrawLine=m.target as DrawLine;
+//					    m.play([titlemusic_id],true);
+//						mv.play();
+//				});
+//				//					mv.target=dl;
+//				mv.duration=1000;
+//				mv.xTo=30;
+//				mv.play([titlemusic_id],true);
+			}
+			private function productListEventHandler(event:ProductListEvent):void
+			{
+//				Alert.show(event.type);
+				//				Alert.show(event.type);
+//				switch (event.type)
+//				{
+//					case ProductListEvent.ADD_PRODUCT:
+//						event.product._qty = 0;  
+//						//fall through into the same logic as dup          
+//						
+//					case ProductListEvent.DUPLICATE_PRODUCT:
+//						event.product._qty++;
+//						//						Alert.show(event.product.qty.toString());
+//						totalWeight += Number(event.product.weight);
+//						total += Number(event.product.price);
+//						numProducts++;
+//						//						productList.addProduct(event.product);
+//						break;            
+//					case ProductListEvent.PRODUCT_QTY_CHANGE:
+//						//						Alert.show("change");
+//					case ProductListEvent.REMOVE_PRODUCT:
+//						var items:Array = productList.items;
+//						total = 0; 
+//						numProducts = 0;
+//						totalWeight=0;
+//						for (var i:int=0; i < items.length; i++)
+//						{
+//							var product:Product = items[i].product;
+//							total += product._qty * Number(product.price);
+//							totalWeight += product._qty * Number(product.weight);
+//							numProducts += product._qty;
+//						}
+//						
+//						break;
+//					default:
+//						break;
+//				}
+		   }
+			
+			private function musicmouseoverHandler(evt:MouseEvent):void{
+				if(evt.type==MouseEvent.MOUSE_OVER){
+					var dl:DrawLine=evt.target as DrawLine;
+					dl.graphics.clear();
+					dl.drawLine(dl.startX,dl.startY+8,dl.endX,dl.endY-20,0xc3c4c8);
+					
+				}
+				if(evt.type==MouseEvent.MOUSE_OUT){
+					var dl:DrawLine=evt.target as DrawLine;
+					dl.graphics.clear();
+					dl.drawLine(dl.startX,dl.startY,dl.endX,dl.endY,0xc3c4c8);
+					
+				}
+			}
+			
+			private function askitemClickHandler(evt:MenuEvent):void {
+//				Alert.show();
+				ExternalInterface.call("callMessage",evt.label.split(":")[1]);
+				
+			}
+			/***
+			 * 保存到本地内存
+			 * */
+			public function saveLocale(evt:MinnMessageEvent):void{
+				user=evt.data as User;
+//								Alert.show(user.userName_ch);
+				this.parentApplication.user=user;
+//				if(save2local){
+//					var so:SharedObject=SharedObject.getLocal("user");
+//					so.data.user=_user;
+//					so.flush();
+//				}
+				filp2Loe();
+			}
+			
+			public function exitLocal(evt:MinnMessageEvent):void{
+//				var so:SharedObject=SharedObject.getLocal("user");
+//				so.clear();
+//				so.flush();
+				this.parentApplication.user=null;
+				user=null;
+				flip2Login();
+			}
+			public function modifyUser(evt:MinnMessageEvent):void{
+//				WindowProxy.getInstance().getPopWin("mvc/view/front/user/component/LoginOrRegisterPanel.swf",this,{type:"modify",item:user},100,460);
+		       
+				Entrypt.loadswfObject("mvc/view/front/user/component/LoginOrRegisterPanel"+Config.SUBFFIX,loadswfCompleteHandler,this);
+				//				urlLoader.load(new URLRequest(Config.MAIN_APP));
+			}
+			public function carCountHandler(evt:MinnMessageEvent):void{
+				cartCount=int(evt.data);
+			}
+			
+			private function loadswfCompleteHandler(evt:Event):void{
+				
+                if(Config.SUBFFIX==Config.FLAG){
+					WindowProxy.getInstance().getPopWin("mvc/view/front/user/component/LoginOrRegisterPanel.swf",evt.target.data as ByteArray,this,{type:"modify",item:user},100,460);
+				}else{
+					WindowProxy.getInstance().getPopWin("mvc/view/front/user/component/LoginOrRegisterPanel.swf",Entrypt.uncompress(evt.target.data as ByteArray,this.parentApplication.KEY),this,{type:"modify",item:user},100,460);
+				}
+				
+			}
+			private function callBack():void{
+				Alert.show('callBack!');
+			}
+			private function searchProduct(e:MouseEvent):void{
+				//				Alert.show('d');
+			} 
+			
+			private var _compareList:ArrayCollection=new ArrayCollection();
+			private var _cartList:ArrayCollection=new ArrayCollection();
+			private var _firstpage:ArrayCollection=new ArrayCollection();
+			
+			
+			public function get firstpage():ArrayCollection{
+				return _firstpage;
+			}
+			public function set firstpage(fg:ArrayCollection):void{
+				_firstpage.addAll(fg);
+			}
+			
+			public function get compareList():ArrayCollection{
+				return _compareList;
+			}
+			public function add2compareList(evt:MinnMessageEvent):void{
+				var pro:Product=evt.data as Product;
+				this._compareList.addItem(pro);
+				
+				
+				
+			}
+			public function get cartList():ArrayCollection{
+				return _cartList;
+			}
+			public function add2cartList(evt:MinnMessageEvent):void{
+				var pro:Product=evt.data as Product;
+				this._cartList.addItem(pro);
+//				cartCount=_cartList.length;
+				if(shopCard.productList!=null)
+					cartCount=_cartList.length+shopCard.numProducts;
+				else
+				    cartCount=_cartList.length;
+//				Alert.show(pro.id);
+			}
+		
+			
+//			private function publicProduct():void{
+//					for(var j:int=0;j<comparelist.length;j++){
+//						var p:Product=comparelist.getItemAt(j) as Product;
+//						for(var k:int=0;k<cartlist.length;k++){
+//							var p1:Product=cartlist.getItemAt(k) as Product;
+//							if(p.id!=p1.id)
+//								publicProduct.addItem(p);
+//						}
+//					}
+//				
+//			}
+			//			protected function login_or_register_clickHandler(event:MouseEvent,type:String):void
+			//			{
+			//				// TODO Auto-generated method stub
+			//				var win:TitleWindow= WindowProxy.getInstance().getSpTitleWindow("mvc/view/front/user/component/LoginOrRegisterPanel.swf",type,null,event.stageX,event.stageY);
+			//				//				var clazz:Class = getDefinitionByName("skip.TitleWindowSkinClass") as Class;
+			//				//				win.setStyle("skinClass", clazz); 
+			//			}
+			
+			protected function hdividedbox1_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				Alert.show('d');
+			}
+			
+			
+			
+			protected function tbb_creationCompleteHandler(event:FlexEvent):void
+			{
+//				Alert.show('tbb.toString()');
+				Entrypt.loadswfObject("ball/FirstPage"+Config.SUBFFIX,loadFisrtPageswfCompleteHandler,this);
+				Entrypt.loadswfObject("mvc/view/front/product/component/ProductShowPanel"+Config.SUBFFIX,loadShopPageswfCompleteHandler,this);
+				for(var i:int=0;i<tbb.getChildren().length;i++){
+					new ToolTipWin(tbb.getChildren()[i],tbb.getChildren()[i].label);
+				}
+			}
+			
+			
+			
+			
+			protected function shop_clickHandler(evt:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+//				tbb.selectedIndex=1;
+				//				MinnMessageEventManager.getInstance().dispatchEvent(new Event('showProductCart'));
+//				dispatchEvent(new Event('showProductCart',true));
+				
+				PopUpManager.addPopUp(shopCard,this);
+				
+//				if(evt!=null){
+					var p:Point=localToGlobal(new Point(MenuLabel(evt.target).x,MenuLabel(evt.target).y));
+					shopCard.x=p.x-shopCard.width+MenuLabel(evt.target).width;
+					shopCard.y=p.y+75;
+//				}
+					shopCard.commitOrder_id.enabled=true;
+				for(var i:int=0;i<_cartList.length;i++){
+					
+					shopCard.productList.addProduct(_cartList.getItemAt(i) as Product);
+				}	
+				_cartList.removeAll();
+//				Alert.show(shopcount_id.height+'');
+			}
+			public function addProduct(p:Product):void{
+//				shop_clickHandler();
+//				shopCard.productList.addProduct(p);
+//				PopUpManager.removePopUp(shopCard);
+			}
+			public function filp2Loe():void{
+				//	menuTree.setStyle("borderVisible",false);
+				//				lom.width=70;
+				var e:Flip = new Flip( loginregister );
+				e.siblings = [ lom ];
+				e.direction = DistortionConstants.TOP;
+				e.duration = 1000;
+				e.addEventListener( EffectEvent.EFFECT_END, onEndLoginEffect );
+				e.play();
+			}
+			private function onEndLoginEffect( event :EffectEvent ) : void
+			{
+				menushow.removeChild( loginregister );
+				//	menushow.addElementAt(lom ,1));
+				menushow.addChildAt(lom ,1);
+			}
+			private function flip2Login(evt:MouseEvent=null) : void
+			{
+				user=null;
+				//				lom.width=70;
+				var e :Flip = new Flip( lom );
+				e.siblings = [ loginregister ];
+				e.direction = DistortionConstants.LEFT;
+				e.duration = 1000;
+				e.addEventListener( EffectEvent.EFFECT_END, onEndLoeEffect );
+				e.play();
+			}
+			private function onEndLoeEffect( event : EffectEvent ) : void
+			{
+				
+				menushow.removeChild( lom );
+				menushow.addChildAt( loginregister,1);
+				//	menuTree.setStyle("borderVisible",true);
+			}
+			
+			protected function ask_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				var lp:Point=acb.localToGlobal(new Point(ask_id.x,ask_id.y));
+				//				Alert.show(lp.x+'');
+				mym.show(lp.x-100,lp.y+15);
+				mr.play();
+			}
+			
+			private function orderShowHandler(evt:MouseEvent):void{
+				if(user!=null){
+					Entrypt.loadswfObject("mvc/view/front/order/component/show/ShowOrderPanel"+Config.SUBFFIX,loadsopswfCompleteHandler,this.parentApplication as DisplayObject);
+				}else{
+					Alert.show("你好，只有登录用户才能查看订单信息!","提示");
+				}
+			}
+			private function loadsopswfCompleteHandler(evt:Event):void{
+				if(Config.SUBFFIX==Config.FLAG)
+					WindowProxy.getInstance().getPopWinExplorer("ShowOrderPanel.swf",evt.target.data as ByteArray,this,null,50,280);
+					else
+				WindowProxy.getInstance().getPopWinExplorer("ShowOrderPanel.swf",Entrypt.uncompress(evt.target.data as ByteArray,this.parentApplication.KEY),this,null,50,280);
+				button1_clickHandler();
+			}
+
+
+			private var isFirst:Boolean=true;
+			protected function tbb_itemClickHandler(event:ItemClickEvent):void
+			{
+				// TODO Auto-generated method stub
+				
+				if(tbb.selectedIndex==1&&!isFirst)
+				    this.dispatchEvent(new MinnMessageEvent(MinnMessageEvent.MESSAGE+"templist",null,true));
+				if(isFirst){
+				    Entrypt.loadswfObject("mvc/view/front/product/component/ProductShowPanel"+Config.SUBFFIX,loadShopPageswfCompleteHandler,this.parentApplication as DisplayObject);
+					isFirst=false;
+				}
+			}
+			
+			private function loadFisrtPageswfCompleteHandler(evt:Event):void{
+				if(Config.SUBFFIX==Config.FLAG){
+				  firstPage_id.loadModule("FirstPage.swf",evt.target.data as ByteArray);
+				}else
+				  firstPage_id.loadModule("FirstPage.swf",Entrypt.uncompress(evt.target.data as ByteArray,this.parentApplication.KEY));
+//				firstPage_id.loadModule("FirstPage.swf",evt.target.data as ByteArray);
+			}
+			private function loadShopPageswfCompleteHandler(evt:Event):void{
+				if(Config.SUBFFIX==Config.FLAG){
+				  shopPage_id.loadModule("ProductShowPanel.swf",evt.target.data as ByteArray);
+				}else
+				  shopPage_id.loadModule("ProductShowPanel.swf",Entrypt.uncompress(evt.target.data as ByteArray,this.parentApplication.KEY));
+//				shopPage_id.loadModule("ProductShowPanel.swf",evt.target.data as ByteArray);
+			}
+			
+
+			protected function module1_resizeHandler(event:ResizeEvent):void
+			{
+				// TODO Auto-generated method stub
+				if(layer!=null){
+//					uilayer.width=titlemusic_id.width;
+//					layer.width=uilayer.width;
+					titlemusic_id.removeChild(uilayer);
+					magicFxHandler();
+				}
+			}
+
+
+			private var isfirst:Boolean=true;
+			protected function sup_changeHandler(event:IndexChangedEvent):void
+			{
+				// TODO Auto-generated method stub
+//				Entrypt.loadswfObject("ball/FirstPage"+Config.SUBFFIX,loadFisrtPageswfCompleteHandler,this);
+				if(isfirst){
+					isfirst=false;
+					Entrypt.loadswfObject("mvc/view/front/product/component/ProductShowPanel"+Config.SUBFFIX,loadShopPageswfCompleteHandler,this);
+					for(var i:int=0;i<tbb.getChildren().length;i++){
+						new ToolTipWin(tbb.getChildren()[i],tbb.getChildren()[i].label);
+					}
+				}
+			}
+
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<!--containers:MDICanvas width="100%" height="100%" id="mdi" horizontalScrollPolicy="off" verticalScrollPolicy="off"-->
+		<!--mx:ModuleLoader x="0" y="5" height="86" width="190" url="assets/img/sb.jpg"/-->
+		<mx:SWFLoader x="0" y="0" height="92" width="260"  source="assets/titleBack.swf"/>
+			
+		
+		<mx:Panel width="100%" height="100%" styleName="windstyle1" id="win">
+			
+			<mx:VBox width="100%" height="100%" verticalGap="0">
+				<mx:Panel width="100%" height="57" layout="absolute" styleName="titlewindstyle" id="titlemusic_id"  horizontalScrollPolicy="off" verticalScrollPolicy="off">
+					<mx:HBox horizontalGap="12" width="100%"  id="titlepanel_id"  paddingTop="40">
+						<mx:Spacer width="98%"/>
+						</mx:HBox>
+				</mx:Panel>
+				
+			 	<mx:VBox verticalGap="5" width="100%" height="100%" paddingTop="1">
+					<mx:HBox width="100%" horizontalGap="0" id="menushow" >
+						<mx:ApplicationControlBar width="100%" paddingTop="0" paddingBottom="-1" minWidth="800" horizontalGap="1" id="acb"> 
+							<mx:Spacer width="250"/><mx:ToggleButtonBar  buttonStyleName="titlebtn" dataProvider="{sup}"  buttonMode="true" useHandCursor="true" itemClick="tbb_itemClickHandler(event)" id="tbb" height="34" buttonWidth="100" fontSize="16"/>
+							<mx:Spacer width="100%"/><mx:Image source="{ic}"/><common:MenuLabel id="ask_id" styleName="titlemenubtn" text="咨询" click="ask_clickHandler(event)"/><mx:VRule top="5" height="{acb.height*.45}" alpha="0.75"/>
+							<common:MenuLabel styleName="menuLabelStyle" text="我的订单"  buttonMode="true" useHandCursor="true" click="orderShowHandler(event)"/>
+							<mx:VRule top="5" height="{acb.height*.45}" alpha="0.75"/>
+							<common:MenuLabel text="购物车({cartCount})件"  buttonMode="true" useHandCursor="true"  click="shop_clickHandler(event)" id="shopcount_id"/><mx:Label text="欢迎:{user.userName_ch}" id="userinfo_id"/>
+						</mx:ApplicationControlBar>
+						<!--<mx:Button click="{stage.di = StageDisplayState.FULL_SCREEN ;}" label="全屏浏览"/--> 
+						<component:LoginOrRegister id="loginregister"/><mx:Spacer width="5"/>
+					</mx:HBox>
+					<mx:ViewStack id="sup" width="100%" height="100%"   creationComplete="tbb_creationCompleteHandler(event)">
+						<!--url="ball/PicBall.swf"  url="ball/FirstPage.swf" -->
+						<mx:ModuleLoader showEffect="WipeDown" hideEffect="WipeUp" label="首页" id="firstPage_id"/>
+						<mx:ModuleLoader showEffect="WipeDown" hideEffect="WipeUp" label="商品" id="shopPage_id" creationComplete="{this.dispatchEvent(new MinnMessageEvent(MinnMessageEvent.MESSAGE+'templist',null,true))}"/>
+					</mx:ViewStack>
+				</mx:VBox>
+			</mx:VBox>
+			
+		</mx:Panel>
+	<!--/containers:MDICanvas-->
+</mx:Module>

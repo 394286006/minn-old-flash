@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/halo" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" creationComplete="vbox1_creationCompleteHandler(event)">
+	<fx:Script>
+		<![CDATA[
+			/**
+			 * @author minn
+			 * @QQ 394286006
+			 * @email freemanfreelift@gmail.com
+			 */
+			import com.adobe.serialization.json.JSON;
+			
+			import minn.common.Entrypt;
+			import minn.message.Message;
+			import minn.proxy.WindowProxy;
+			import minn.util.MinnUtil;
+			
+			import mvc.controller.ControllerCommand;
+			import mvc.controller.ControllerService;
+			import mvc.model.order.OrderProxy;
+			import mvc.model.order.vo.Order;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			
+			[Bindable]
+			private var orders:Array=null;
+
+			public function vbox1_creationCompleteHandler(event:FlexEvent=null):void
+			{
+				// TODO Auto-generated method stub
+				var condition:Object=new Object();
+				condition.id=parentApplication.user.id;
+				condition.ispay=1;
+				var proxy:OrderProxy=ControllerService.getInstance(ControllerCommand.ORDER_PROXY);
+				proxy.query(condition,queryOrderResultHandler);
+			}
+			private function queryOrderResultHandler(message:Message):void{
+				
+				orders=JSON.decode(message.messageBody) as Array;
+				
+				var ac:ArrayCollection=new ArrayCollection();
+				for(var i:int=0;i<orders.length;i++){
+					var v:Order=new Order();
+					ac.addItem(v);
+				}
+				MinnUtil.copyProperty(ac,orders);
+				
+//								Alert.show(orders.length+'');
+				
+			}
+			public function detail_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				Entrypt.loadswfObject("mvc/view/front/order/component/show/ShowOrderPanel.swf",loadssopwfCompleteHandler,this);
+				
+			}
+			private function loadssopwfCompleteHandler(evt:Event):void{
+				//				mm.loadModule("2011010812342.swf",Entrypt.uncompress(evt.target.data as ByteArray,KEY));
+				WindowProxy.getInstance().getPopWinExplorer("mvc/view/front/order/component/show/ShowOrderPanel.swf",evt.target.data as ByteArray,this,null,50,280);
+			}
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<mx:DataGrid height="100%" width="100%" dataProvider="{orders}" sortableColumns="false">
+		<mx:columns>
+			<mx:DataGridColumn headerText="订单编号" width="80" dataField="out_trade_no"/>
+			<mx:DataGridColumn headerText="订单主题" width="80" dataField="subject"/>
+			<mx:DataGridColumn headerText="提交时间" width="80" dataField="createDate"/>
+			<mx:DataGridColumn headerText="配送方式" dataField="getway">
+				<mx:itemRenderer>
+					<fx:Component>
+						<mx:Label updateComplete="label1_updateCompleteHandler(event,data)">
+							<fx:Script>
+								<![CDATA[
+									import mx.events.FlexEvent;
+									protected function label1_updateCompleteHandler(event:FlexEvent,obj:Object):void
+									{
+										// TODO Auto-generated method stub
+										if(obj.getway==0){
+											this.text="买主上门自提";
+										}else if(obj.getway==2){
+											this.text="快递方式";
+										}
+									}
+								]]>
+							</fx:Script>
+						</mx:Label>
+						
+					</fx:Component>
+				</mx:itemRenderer>
+			</mx:DataGridColumn>
+			<mx:DataGridColumn headerText="总重量"  width="80" dataField="totalweight"/>
+			<mx:DataGridColumn headerText="总金额" width="80" dataField="totalmoney"/>
+			<mx:DataGridColumn headerText="操作" dataField="">
+				<mx:itemRenderer>
+					<fx:Component>
+						<mx:Button label="详情" click="outerDocument.detail_clickHandler(event)">
+						</mx:Button>
+						
+					</fx:Component>
+				</mx:itemRenderer>
+			</mx:DataGridColumn>
+		</mx:columns>
+	</mx:DataGrid>
+</mx:VBox>

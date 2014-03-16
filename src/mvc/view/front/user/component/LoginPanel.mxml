@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<containers:PopWin xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		  xmlns:s="library://ns.adobe.com/flex/spark" 
+		  xmlns:mx="library://ns.adobe.com/flex/mx"  width="100%" height="100%"
+		  xmlns:common="minn.common.*" xmlns:containers="flexmdi.containers.*" currentStateChange="popwin1_currentStateChangeHandler(event)">
+		<fx:Style source="assets/css/app_css.css"/>
+	    <fx:Script source="../../../../../mvc/base/FrontBaseImport.as"/>
+		<fx:Script>
+			<![CDATA[
+				import mvc.model.user.UserProxy;
+				
+				import mx.events.StateChangeEvent;
+				
+				[Bindable]
+				private var user:User=null;
+				
+				private var userProxy:UserProxy=null;
+				protected function module1_removeHandler(event:Event):void
+				{
+				}
+				
+				protected function module1_creationCompleteHandler(event:FlexEvent):void
+				{
+				}
+				public function messageHandler(val:Object):void{
+					//				Alert.show(e.data.toString());
+					var type:String=val.type;
+					//				if(val.type=="modify")
+					//                     this.currentState=type;
+					//					currentState=type;
+					
+					//				}
+				}
+				private function click_Handler():void{
+					
+					//				Alert.show(this.parent.parent.toString());
+					var validatorErrorArray:Array = Validator.validateAll(validatorArray); 
+					var err:ValidationResultEvent; 
+					var errorMessageArray:Array = []; 
+					if(validatorErrorArray.length>0){
+						for each (err in validatorErrorArray) { 
+							errorMessageArray.push(err.message); 
+						} 
+						
+						if(errorMessageArray.length >0){
+							Alert.show(errorMessageArray.join("\n\n"), "请按照以下错误提示信息重新填写", Alert.OK,this.parentApplication as Sprite);
+							
+							return;
+						}
+					}
+					
+					if(userProxy==null)
+						userProxy=ControllerService.getInstance(ControllerCommand.USER_PROXY);
+					if(currentState=='backUser'){
+//						Alert.show("backuser");
+					}
+					else{
+						user=new User();
+						//					user.userName_ch=userName_ch.text;
+						user._sid=this.parentApplication.PRIVATEKEY;
+						user.userName_en=userName_en_id.text;
+						user.password=password_id.text;
+						userProxy.login(user,loginResultHandler);
+						
+					}
+				}
+				private function loginResultHandler(message:Message):void{
+					if(user==null)
+						user=new User();
+					if(message.messageSucess==1){
+						MinnUtil.propertyMap(message.messageBody,user);
+						//					this.parentApplication.saveLocale(user,so_check_id.selected);
+						this.dispatchEvent(new MinnMessageEvent(MinnMessageEvent.MESSAGE+"loginSucesses",user,true));
+						//					this.dispatchEvent(new CloseEvent(CloseEvent.CLOSE,true));
+						PopUpManager.removePopUp(this);
+					}else{
+						Alert.show(message.messageBody,"提示",4,this.parentApplication as Sprite);
+					}
+					//				Alert.show(message.messageBody);
+					this.dispatchEvent(new CloseEvent(CloseEvent.CLOSE));
+				}
+				
+				
+				protected function userName_en_id_mouseOutHandler(event:FocusEvent):void
+				{
+					// TODO Auto-generated method stub
+					if(userProxy==null)
+						userProxy=ControllerService.getInstance(ControllerCommand.USER_PROXY);
+					user=new User();
+					if(userName_en_id.text!=''){
+						user._sid=this.parentApplication.PRIVATEKEY;
+						user.userName_en=userName_en_id.text;
+						
+						userProxy.userCheck(user,userCheckResultHandler);
+					}
+					//					Alert.show("userName_en_id");
+				}
+				private function userCheckResultHandler(message:Message):void{
+					
+					if(message.messageSucess==0){
+						Alert.show(message.messageBody,"提示",4,this.parentApplication as Sprite);
+						userName_en_id.text="";
+					}
+					
+				}
+				
+				import mx.events.ValidationResultEvent;
+				
+				private function emailValidator_valid(evt:ValidationResultEvent):void {
+					//				textInput.errorString = "";
+					//				message.text = "";
+					//				Alert.show(textInput.text, "You entered a valid email address:");
+					
+				}
+				
+				private function emailValidator_invalid(evt:ValidationResultEvent):void {
+					//				textInput.errorString = evt.message;
+					//				message.text = evt.message;
+					//				if(evt.currentTarget.text!='')
+				}
+				
+				protected function popwin1_currentStateChangeHandler(event:StateChangeEvent):void
+				{
+					 if(currentState=="backUser"){
+						this.title='找回密码';
+						inbackemail_id.visible=true;
+						inbackemail_id.includeInLayout=true;
+						pwdlabel_id.visible=false;
+						pwdlabel_id.includeInLayout=false;
+					}else{
+						this.title='登录';
+						inbackemail_id.visible=false;
+						inbackemail_id.includeInLayout=false;
+						pwdlabel_id.visible=true;
+						pwdlabel_id.includeInLayout=true;
+					}
+					
+				}
+				
+			]]>
+		</fx:Script>
+		<fx:Declarations>
+			<fx:Array id="validatorArray">
+				<mx:StringValidator id="userNameValidator"
+									source="{userName_en_id}" includeIn="login"
+									requiredFieldError="用户名不能为空！"
+									property="text" 
+									required="true" />
+				<mx:StringValidator id="password_idValidator" includeIn="login"
+									source="{password_id}" 
+									requiredFieldError="密码不能为空！"
+									property="text" 
+									required="true" />
+			
+				<mx:EmailValidator id="bakemail_idValidator" 
+								   source="{bakemail_id}"  includeIn="backUser"
+								   requiredFieldError="找回密码email不能为空！"
+								   property="text" 
+								   required="true" />
+			</fx:Array>
+			
+		</fx:Declarations>
+		
+		<containers:states>
+			<mx:State name="login"/>    
+			<mx:State name="backUser"/>
+		</containers:states>
+		<mx:Form id="loginForm" width="100%" height="100%">  
+			<mx:FormItem label="用户名:">
+				<mx:TextInput id="userName_en_id" text="minn" />
+			</mx:FormItem>
+			<mx:FormItem label="密      码:" id="pwdlabel_id" direction="horizontal">
+				<mx:TextInput id="password_id" text="1234"  displayAsPassword="true"/><mx:Label text="密码由6~~8位的数字,字母或下划线组成"/>
+			</mx:FormItem>
+			<mx:FormItem  label="找回密码邮箱:" includeInLayout="false" visible="false" direction="horizontal" id="inbackemail_id">
+				<mx:TextInput id="bakemail_id"/><mx:Label text="密码将会发到您的邮箱中!"/>
+			</mx:FormItem>    
+		</mx:Form>
+		<mx:HBox width="100%" horizontalGap="10">
+			<mx:Spacer width="130"/>
+			<common:MenuLabel text.backUser="登录?" text.login="找回密码?" click="if(currentState=='backUser')currentState='login'; else currentState='backUser';"/>
+			<s:Button id="loginButton" useHandCursor="true" buttonMode="true" skinClass="{skin.ShopCardBtn}"
+					   label.login="登录"  label.backUser="找回密码" 
+					   click="click_Handler()"/>
+		</mx:HBox>
+		<mx:Spacer height="10"/>
+		<containers:transitions>
+			<mx:Transition fromState="*" toState="*">
+				<mx:Fade duration="800" alphaFrom="0" alphaTo="1" target="{loginForm}"/>
+			</mx:Transition>
+		</containers:transitions>
+		
+
+</containers:PopWin>

@@ -1,0 +1,95 @@
+<!-- 
+minn,mainApp
+compileFirstPageModule
+-->
+<!-- compileMessageMngModule,compileGroupMngModule,,shopmanager -->
+<project name="Flex Ant Tasks Build Script" default="minn" basedir=".">
+   <property file="build.properties" />
+   <!-- points to our flexTasks.jar we copied to the libs folder to distribute with the project -->
+   <taskdef resource="flexTasks.tasks" classpath="${FLEX_HOME}/ant/lib/flexTasks.jar"/> 
+    <target name="init">
+		  <delete file="${DEPLOY_DIR}/minn.swf" />
+		  <delete file="${DEPLOY_DIR}/mainApp.swf" />
+		 <delete file="${DEPLOY_DIR}/ball/FirstPage.swf" />
+		<delete file="${DEPLOY_DIR}/mvc/view/front/order/component/show/ShowOrderPanel2.swf" />
+		 <delete file="${DEPLOY_DIR}/mvc/view/front/product/component/ProductShowPanel.swf" />
+	 </target>	
+	   <target name="initOther">
+		
+		 
+	 </target>	
+   <!-- 
+ 
+   
+   depends="compileShopMainAppModule"
+   -->
+      <target name="minn" depends="compilemainAppModule">
+      <mxmlc file="${SRC_DIR}/minn.mxml" 
+            output="${DEPLOY_DIR}/minn.swf" services="${SRC_DIR}/services-config.xml" locale="en_US"   remove-unused-rsls="true"
+            static-link-runtime-shared-libraries="false" incremental="true" benchmark="false"  debug="${DEBUGGING}">
+           <load-config filename="${FLEX_HOME}/frameworks/flex-config.xml"/>
+           <load-config filename="${CONFIG_DIR}/minnConfig.xml"/>
+           <source-path path-element="${FLEX_HOME}/frameworks"/>
+		    <source-path path-element="${LIBS_DIR}"/>
+           <source-path path-element="${SRC_DIR}"/>
+		    <compiler.theme file="${FLEX_HOME}/frameworks/themes/Halo/halo.swc"/>
+      </mxmlc> 
+   </target>
+   <!-- Build and output the ArtModule.swf depends="compileFirstPageModule"-->
+   <target name="compilemainAppModule" > 
+      <mxmlc file="${SRC_DIR}/mainApp.as" locale="en_US"
+            output="${DEPLOY_DIR}/mainApp.swf" services="${SRC_DIR}/services-config.xml" 
+            static-link-runtime-shared-libraries="false" debug="${DEBUGGING}">
+           <load-config filename="${FLEX_HOME}/frameworks/flex-config.xml"/>
+           <load-config filename="${CONFIG_DIR}/mainAppConfig.xml"/>
+           <source-path path-element="${FLEX_HOME}/frameworks"/>
+		     <source-path path-element="${LIBS_DIR}"/>
+           <source-path path-element="${SRC_DIR}"/>
+		     <compiler.theme dir="${FLEX_HOME}/frameworks/themes">
+        <include name="Halo/halo.swc"/>
+      </compiler.theme>
+
+      </mxmlc>
+   </target>
+
+      <target name="compileFirstPageModule" depends="compileProductShowPanelModule"> 
+      <mxmlc file="${SRC_DIR}/ball/FirstPage.as"  services="${SRC_DIR}/services-config.xml" 
+            output="${DEPLOY_DIR}/ball/FirstPage.swf" 
+            static-link-runtime-shared-libraries="false"
+			debug="${DEBUGGING}">	
+           <load-config filename="${FLEX_HOME}/frameworks/flex-config.xml"/>
+           <load-config filename="${CONFIG_DIR}/FirstPageConfig.xml"/>
+           <source-path path-element="${FLEX_HOME}/frameworks"/>
+		     <source-path path-element="${LIBS_DIR}"/>
+           <source-path path-element="${SRC_DIR}"/>          
+		    <compiler.theme file="${FLEX_HOME}/frameworks/themes/Halo/halo.swc"/>
+      </mxmlc>
+   </target>
+   <!-- depends="compileAreaMngModule" -->
+    <target name="compileProductShowPanelModule" depends="compileShowOrderPanel2Module">
+      <mxmlc file="${SRC_DIR}/mvc/view/front/product/component/ProductShowPanel.mxml"   services="${SRC_DIR}/services-config.xml"
+            output="${DEPLOY_DIR}/mvc/view/front/product/component/ProductShowPanel.swf" 
+            static-link-runtime-shared-libraries="false" debug="${DEBUGGING}">
+           <load-config filename="${FLEX_HOME}/frameworks/flex-config.xml"/>
+           <load-config filename="${CONFIG_DIR}/ProductShowPanelConfig.xml"/>
+           <source-path path-element="${FLEX_HOME}/frameworks"/>
+		     <source-path path-element="${LIBS_DIR}"/>
+           <source-path path-element="${SRC_DIR}"/>
+		    <compiler.theme file="${FLEX_HOME}/frameworks/themes/Halo/halo.swc"/>
+      </mxmlc>
+   </target>
+   <!-- depends="compileAreaPanelModule" -->
+       <target name="compileShowOrderPanel2Module" depends="init">
+      <mxmlc file="${SRC_DIR}/mvc/view/front/order/component/show/ShowOrderPanel2.mxml"  services="${SRC_DIR}/services-config.xml"
+            output="${DEPLOY_DIR}/mvc/view/front/order/component/show/ShowOrderPanel2.swf"
+            static-link-runtime-shared-libraries="false" debug="${DEBUGGING}">
+           <load-config filename="${FLEX_HOME}/frameworks/flex-config.xml"/>
+           <load-config filename="${CONFIG_DIR}/ShowOrderPanel2Config.xml"/>
+           <source-path path-element="${FLEX_HOME}/frameworks"/>
+		     <source-path path-element="${LIBS_DIR}"/>
+           <source-path path-element="${SRC_DIR}"/>
+		    <compiler.theme file="${FLEX_HOME}/frameworks/themes/Halo/halo.swc"/>
+      </mxmlc>
+   </target>
+  
+</project>

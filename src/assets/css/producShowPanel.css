@@ -1,0 +1,21 @@
+/* CSS file */
+@namespace s "library://ns.adobe.com/flex/spark";
+@namespace mx "library://ns.adobe.com/flex/mx";
+@namespace common "minn.common.*" ;
+mx|ComboBox{
+	cornerRadius: 0;
+	fillAlphas: 0.52, 0.58, 0.84, 0.63;
+	fillColors: #334644, #0446e8, #ffffff, #eeeeee;
+	alternatingItemColors: #c8c0c0, #81ae91;
+}
+common|PageToolBar mx|ComboBox{
+	cornerRadius: 0;
+	color: #575252;
+	iconColor: #7c5d5d;
+	fillAlphas: 0.67, 0.55, 0.3, 0.73;
+	fillColors: #fa0c28, #f9071e, #040101, #999090;
+	selectionColor: #e0d10f;
+	alternatingItemColors: #c8c0c0, #81ae91;
+	themeColor: #3f53db;
+	fontSize:11;
+}

@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
+		   horizontalScrollPolicy="off"
+		   dragEnter="doDragEnter(event)" styleName="productCartStyle"
+		   backgroundColor="#ffffee"
+		   dragDrop="doDragDrop(event)" height="100%" 
+		   creationComplete="canvas1_creationCompleteHandler(event)"> <!-- need a background color for drag and drop but can set alpha to 0 -->
+	
+	<mx:Metadata>
+		[Event(name="addProduct", type="mvc.view.front.product.event.ProductListEvent")]
+		[Event(name="duplicateProduct", type="mvc.view.front.product.event.ProductListEvent")]
+		[Event(name="productQtyChange", type="mvc.view.front.product.event.ProductListEvent")]
+		[Event(name="removeProduct", type="mvc.view.front.product.event.ProductListEvent")]
+	</mx:Metadata>
+	
+	<mx:Script>
+		<![CDATA[
+			import flexmdi.events.MinnMessageEvent;
+			import flexmdi.events.MinnMessageEventManager;
+			
+			import mvc.model.merchandise.vo.Product;
+			import mvc.view.front.product.event.ProductListEvent;
+			
+			import mx.controls.Alert;
+			import mx.core.*;
+			import mx.effects.*;
+			import mx.effects.EffectManager;
+			import mx.events.*;
+			import mx.managers.DragManager;
+			
+			public var items:Array = [];
+			
+			public var newItemStartX:int;
+			public var newItemStartY:int;
+			[Bindable]
+			public var maxItems:int;
+			public var showQuantity:Boolean;
+			
+			private var playingEffects:Dictionary = new Dictionary(true);
+			
+			public function addProduct(product:Product):void
+			{
+				var index:int = indexOf(product.id);
+				var event:ProductListEvent;
+				var item:ProductItem;
+				
+				if (index != -1)
+				{
+					item = items[index] as ProductItem;
+					//if we don't keep track of what's playing a double-click can
+					//cause the list item to keep rising
+					if (playingEffects[item] == null)
+					{
+//						Alert.show(item.product.qty.toString());
+						var jump:Sequence = new Sequence();
+						var m1:Move = new Move(item)
+						m1.yBy = -5;
+						var m2:Move = new Move(item)
+						m2.yBy = 5;
+						jump.addChild(m1);
+						jump.addChild(m2);
+						jump.duration = 150;
+						playingEffects[item] = jump;
+						jump.addEventListener(EffectEvent.EFFECT_END, function(event:Event):void
+						{
+							delete playingEffects[item];
+						});
+						jump.play();
+					}
+					event = new ProductListEvent(ProductListEvent.DUPLICATE_PRODUCT,true);
+//					if(showQuantity)
+					
+//				    item.qty.text=(++item.product.qty).toString();
+					event.product = item.product;
+					dispatchEvent(event);
+				}
+				else
+				{
+					index = items.length;
+					if (maxItems <= 0 || index < maxItems)
+					{
+						item = new ProductItem();
+						if (showQuantity)
+						{
+							item.currentState = 'showQuantity';
+						}
+						item.product = product;
+						item.percentWidth = 100;
+						item.addEventListener(ProductListEvent.REMOVE_PRODUCT, removeItemHandler);
+						items[index] = item;
+						addChild(item);
+						layoutItems(index, true);
+						event = new ProductListEvent(ProductListEvent.ADD_PRODUCT);
+//						item.qty.text=(++product.qty).toString();
+						event.product = product;
+						dispatchEvent(event);
+					}
+				}
+			}
+			
+			public function getProducts():Array
+			{
+				var ret:Array = [];
+				for (var i:int = 0; i < items.length; i++)
+				{
+					ret[i] = items[i].product;
+				}
+				return ret;
+			}
+			
+			private function removeItemHandler(event:Event):void
+			{ 
+				var item:ProductItem = event.target as ProductItem;
+				var index:int = indexOf(item.product.id);
+				items.splice(index, 1);
+				removeChild(item);
+				layoutItems(index);
+			}
+			
+			private function layoutItems(startIndex:int, scrollToBottom:Boolean=false):void
+			{
+				var n:int = items.length;
+				var e:Move;
+				for (var i:int = startIndex; i < n ; i++)
+				{
+					var item:ProductItem = items[i];
+					var yTo:Number = i * (item.height);
+					//still need to prevent items that are already in motion from getting
+					//jumpy
+					if (playingEffects[item] == null)
+					{
+						e = new Move(item);
+						if (item.x == 0 && item.y == 0)
+						{
+							e.xFrom = newItemStartX;
+							e.yFrom = newItemStartY;
+						}
+						
+						e.xTo = 0;
+						e.yTo = yTo;
+						playingEffects[item] = e;
+						e.addEventListener(EffectEvent.EFFECT_END, function(event:Event):void
+						{
+							delete playingEffects[item];
+						});
+						e.play();
+					}
+					else
+					{
+						playingEffects[item].pause();
+						playingEffects[item].yTo = yTo;
+						playingEffects[item].play();
+					}
+				}
+				//get the last event and if we should scroll make sure we can validate
+				//and scroll to maxVPosition
+				if (scrollToBottom)
+				{
+					e.addEventListener(EffectEvent.EFFECT_END, function(event:Event):void
+					{
+						validateNow();
+						verticalScrollPosition = maxVerticalScrollPosition;    
+					});
+				}
+			}
+			
+			private function indexOf(productId:String):int
+			{
+				var index:int = -1;
+				
+				var n:int = items.length;
+				for (var i:int = 0; i < items.length; i++)
+				{
+					if (items[i].product.id == productId)
+					{
+						index = i;
+						break;
+					}
+				}
+				
+				return index;
+			}     
+			
+			private function doDragEnter(event:DragEvent):void
+			{
+				if (event.dragSource.hasFormat("product"))
+				{
+					DragManager.acceptDragDrop(IUIComponent(event.target));
+				}
+			}
+			
+			private function doDragDrop(event:DragEvent):void
+			{
+				var product:Product = event.dragSource.dataForFormat("product") as Product;
+				addProduct(product);
+			}  
+			
+
+	
+
+			protected function canvas1_creationCompleteHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				MinnMessageEventManager.getInstance().addEventListener(ProductListEvent.PRODUCT_DEL_BY_ORDER,messageHandler,false);
+//				MinnMessageEventManager.getInstance().addEventListener(ProductListEvent.ADD_PRODUCT,productListEventHandler);
+			}
+			
+			private function messageHandler(e:ProductListEvent):void{
+//				var item:ProductItem = event.target as ProductItem;
+				var index:int = -1;
+				var n:int = items.length;
+				for (var i:int = 0; i < items.length; i++)
+				{
+					var item:ProductItem=items[i] as ProductItem;
+					if (item.product.id == e.product.id)
+					{
+						index = i;
+						items.splice(index, 1);
+						removeChild(item);
+						layoutItems(index);
+						
+						var event:ProductListEvent = new ProductListEvent(ProductListEvent.REMOVE_PRODUCT,true);
+						event.product = e.product;
+						dispatchEvent(event);
+						break;
+					}
+				}
+				
+				
+			
+			}
+
+		]]>
+	</mx:Script>
+	
+</mx:Canvas>

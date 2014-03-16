@@ -1,0 +1,85 @@
+/* CSS file */
+@namespace s "library://ns.adobe.com/flex/spark";
+@namespace mx "library://ns.adobe.com/flex/mx";
+@namespace commit "mvc.view.front.order.component.commit.*" ;
+@namespace show "mvc.view.front.order.component.show.*";
+mx|DataGrid mx|Button {
+	cornerRadius: 0;
+	textIndent: 0;
+	paddingLeft: 0;
+	paddingRight: 0;
+	letterSpacing: 0;
+	highlightAlphas: 0.18, 0.08;
+	fillAlphas: 0.63, 0.34, 0.93, 0.3;
+	fillColors: #000000, #000000, #2e22a7, #acc7c9;
+	color: #ffffff;
+	textRollOverColor: #1719e5;
+	borderColor: #414646;
+	themeColor: #2bcdd3;
+	useHandCursor:true;
+	buttonMode:true;
+	textSelectedColor: #2bcdd3;
+	width:60;
+}
+mx|DataGrid {
+	backgroundAlpha: 1;
+	backgroundColor: #1f1313;
+	alternatingItemColors: #c8d57a, #21dc99;
+	headerColors: #7ea5e2, #0936ec;
+	horizontalGridLines: true;
+	horizontalGridLineColor: #096573;
+	verticalGridLineColor: #79797d;
+	borderThickness: 0;
+	textSelectedColor: #0b333c;
+	headerStyleName: "mydataGridHeaderStyle";
+	fontSize: 11;
+}
+
+.mydataGridHeaderStyle {
+	color: #fdf7fc;
+	fontSize: 12;
+}
+mx|TabNavigator {
+	horizontalAlign: right;
+	borderStyle: inset;
+	tabStyleName: "myTabs";
+	firstTabStyleName: "myTabs";
+	lastTabStyleName: "myTabs";
+	selectedTabTextStyleName: "mySelectedTabs";
+}
+
+.myTabs {
+	cornerRadius: 0;
+	highlightAlphas: 0.58, 0;
+	fillAlphas: 0.44, 0.65;
+	fillColors: #2938e6, #1227e0;
+	backgroundAlpha: 0.85;
+	backgroundColor: #707082;
+	color: #e4eaec;
+	themeColor: #727475;
+	fontSize: 12;
+	
+}
+
+.mySelectedTabs {
+}
+show|PayAction{
+	fontSize: 12;
+}
+mx|Button.bookbtn {
+	cornerRadius: 0;
+	textIndent: 0;
+	paddingLeft: 0;
+	paddingRight: 0;
+	letterSpacing: 0;
+	highlightAlphas: 0.18, 0.08;
+	fillAlphas: 0.63, 0.34, 0.93, 0.3;
+	fillColors: #000000, #000000, #2e22a7, #acc7c9;
+	color: #ffffff;
+	textRollOverColor: #1719e5;
+	borderColor: #414646;
+	themeColor: #2bcdd3;
+	useHandCursor:true;
+	buttonMode:true;
+	textSelectedColor: #2bcdd3;
+}

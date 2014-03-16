@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" height="30" styleName="listItem" click="hbox1_clickHandler(event)">
+	<mx:Metadata>
+		[Event(name="productQtyChange", type="mvc.view.front.product.event.ProductListEvent")]
+		[Event(name="removeProduct", type="mvc.view.front.product.event.ProductListEvent")]
+	</mx:Metadata>
+	<mx:Script>
+		<![CDATA[
+			import mvc.model.merchandise.vo.Product;
+			import mvc.view.front.product.event.ProductDetailEvent;
+			import mvc.view.front.product.event.ProductListEvent;
+			
+			import mx.controls.Alert;
+			
+			[Bindable]
+			public var product:Product;
+			
+			private function qtyChange():void
+			{
+				
+				product._qty = int(qty.text);
+				var event:ProductListEvent = new ProductListEvent(ProductListEvent.PRODUCT_QTY_CHANGE,true);
+				event.product = product;
+				dispatchEvent(event);
+			}
+			
+			private function removeItem():void
+			{
+				var event:ProductListEvent = new ProductListEvent(ProductListEvent.REMOVE_PRODUCT,true);
+				event.product = product;
+				dispatchEvent(event);
+			}
+			
+
+			protected function hbox1_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				var evt:ProductDetailEvent=new ProductDetailEvent(ProductDetailEvent.DETAILS,product,true);
+				dispatchEvent(evt);
+//				Alert.show('showdetails');
+			}
+
+		]]>
+	</mx:Script>
+	<mx:CurrencyFormatter currencySymbol="￥" id="cf" precision="2"/>
+	
+	<mx:Button id="removeButton"
+			   width="14" height="14" 
+			   icon="@Embed('/assets/trashcan.png')"
+			   click="removeItem()"/>
+	
+	<mx:Image id="productImage" width="12" height="24" source="{product._photos[0]}" includeInLayout="false" visible="false"/>
+	
+	<mx:Label id="productName" maxWidth="100" text="{product.name}"/>
+	
+	<mx:Spacer width="100%" />
+	
+	<mx:Label id="productPrice" 
+			  text="{cf.format(product.price)}" textAlign="right"/>
+	
+	<mx:states>
+		<mx:State name="showQuantity">
+			<mx:AddChild>
+				<mx:TextInput id="qty" width="25" text="{product._qty}" 
+							  textAlign="right" maxChars="3" change="qtyChange()" />
+			</mx:AddChild>
+		</mx:State>        
+	</mx:states>
+</mx:HBox>

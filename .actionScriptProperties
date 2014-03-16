@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<actionScriptProperties analytics="false" mainApplicationPath="BallTest.mxml" projectUUID="7aa89d9e-fd60-40e5-97dd-ea82f158707d" version="11">
+  <compiler additionalCompilerArguments="-locale en_US  -theme=${flexlib}/themes/Halo/halo.swc -services &quot;services-config.xml&quot;" autoRSLOrdering="true" copyDependentFiles="true" flex3CompatMode="true" flexSDK="Flex 4.1A" fteInMXComponents="false" generateAccessible="true" htmlExpressInstall="true" htmlGenerate="true" htmlHistoryManagement="true" htmlPlayerVersionCheck="true" includeNetmonSwc="false" outputFolderLocation="C:/ApachePhpWorkspace/minn" outputFolderPath="bin-debug" removeUnusedRSL="true" sourceFolderPath="src" strict="true" targetPlayerVersion="0.0.0" useApolloConfig="false" useDebugRSLSwfs="true" useFlashSDK="false" verifyDigests="true" warn="true">
+    <compilerSourcePath/>
+    <libraryPath defaultLinkType="0">
+      <libraryPathEntry kind="4" path="">
+        <excludedEntries>
+          <libraryPathEntry kind="3" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/core.swc" useDefaultLinkType="false"/>
+        </excludedEntries>
+      </libraryPathEntry>
+      <libraryPathEntry kind="1" linkType="1" path="libs"/>
+      <libraryPathEntry kind="1" linkType="1" path="${FLEXUNIT_LIB_LOCATION}/version4libs/Common/"/>
+      <libraryPathEntry kind="1" linkType="1" path="${FLEXUNIT_LIB_LOCATION}/version4libs/FlexProject/"/>
+      <libraryPathEntry kind="1" linkType="1" path="${FLEXUNIT_LOCALE_LOCATION}/version4locale/"/>
+    </libraryPath>
+    <sourceAttachmentPath/>
+  </compiler>
+  <applications>
+    <application path="minn.mxml"/>
+    <application path="BallTest.mxml"/>
+  </applications>
+  <modules>
+    <module application="src/minn.mxml" destPath="mvc/view/front/order/component/show/AlipayFrame.swf" optimize="true" sourcePath="src/mvc/view/front/order/component/show/AlipayFrame.mxml"/>
+    <module application="src/minn.mxml" destPath="mvc/view/front/commont/ImageShow.swf" optimize="true" sourcePath="src/mvc/view/front/commont/ImageShow.mxml"/>
+    <module application="src/minn.mxml" destPath="mainApp.swf" optimize="true" sourcePath="src/mainApp.as"/>
+    <module application="src/minn.mxml" destPath="mvc/view/front/help/HelperPanel.swf" optimize="true" sourcePath="src/mvc/view/front/help/HelperPanel.mxml"/>
+    <module application="src/minn.mxml" destPath="FirstPagePicShow.swf" optimize="true" sourcePath="src/ball/FirstPagePicShow.as"/>
+    <module application="src/minn.mxml" destPath="mvc/view/front/product/component/ProductShowPanel.swf" optimize="true" sourcePath="src/mvc/view/front/product/component/ProductShowPanel.mxml"/>
+    <module application="src/minn.mxml" destPath="FirstPage.swf" optimize="true" sourcePath="src/ball/FirstPage.as"/>
+    <module application="src/minn.mxml" destPath="mvc/view/front/order/component/show/ShowOrderPanel.swf" optimize="true" sourcePath="src/mvc/view/front/order/component/show/ShowOrderPanel.mxml"/>
+    <module application="src/minn.mxml" destPath="ball/PicBall.swf" optimize="true" sourcePath="src/ball/PicBall.mxml"/>
+    <module application="src/minn.mxml" destPath="ball/AdModule1.swf" optimize="true" sourcePath="src/ball/AdModule1.mxml"/>
+    <module application="src/minn.mxml" destPath="PicShow.swf" optimize="true" sourcePath="src/mvc/view/front/commont/PicShow.as"/>
+    <module application="src/minn.mxml" destPath="ball/AdModule2.swf" optimize="true" sourcePath="src/ball/AdModule2.mxml"/>
+  </modules>
+  <workers/>
+  <buildCSSFiles/>
+  <flashCatalyst validateFlashCatalystCompatibility="false"/>
+</actionScriptProperties>

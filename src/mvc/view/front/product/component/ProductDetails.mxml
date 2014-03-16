@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		   xmlns:s="library://ns.adobe.com/flex/halo" 
+		   xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:component="mvc.view.front.product.component.*" creationComplete="canvas1_creationCompleteHandler(event)">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Metadata>
+		[Event(name="purchase", type="mvc.view.front.product.event.ProductDetailEvent")]
+		[Event(name="compare", type="mvc.view.front.product.event.ProductDetailEvent")]
+		[Event(name="browse", type="mvc.view.front.product.event.ProductDetailEvent")]
+	</fx:Metadata>
+    <fx:Script>
+		<![CDATA[
+			import flexmdi.containers.ToolTipWin;
+			
+			import mvc.model.merchandise.vo.Product;
+			import mvc.view.front.product.event.ProductDetailEvent;
+			
+			import mx.events.FlexEvent;
+			private var _product:Product;
+			
+			
+			
+			[Bindable]
+			public function get product():Product
+			{
+				return _product;
+			}
+			
+			public function set product(p:Product):void
+			{
+				_product = p;
+//				tn.selectedIndex = 0;
+				picexp.product=p;
+				
+			}
+
+			protected function canvas1_creationCompleteHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+//				new ToolTipWin(cart_id,"添加到购物车");
+//				new ToolTipWin(compare_id,"添加到比较列表");
+//				new ToolTipWin(tile_id,"返回到商品列表");
+			}
+
+		]]>
+	</fx:Script>
+	<mx:VBox width="100%" height="100%" label="Features" verticalGap="8"
+			 paddingLeft="8" paddingTop="8" paddingRight="0" paddingBottom="8" showEffect="Fade" hideEffect="Fade">
+		
+		<mx:HBox width="100%" horizontalGap="12">
+				<component:PicExp  id="picexp" >
+					
+				</component:PicExp>
+				
+			<mx:VBox id="descr" width="100%" height="100%" paddingTop="0" verticalGap="4">
+				<mx:HBox fontSize="13" fontWeight="bold">
+					<mx:Label text="分类:"/><mx:Label text="{product.parentCategoryName}" fontWeight="bold"/>
+					<mx:Image source="assets/img/arrow_next.gif" height="25"/><mx:Label text="{product.categoryName}" />
+				</mx:HBox>
+				<mx:HBox>
+					<mx:Label text="名称:"  fontWeight="bold"/><mx:Label text="{product.name}" fontSize="11"/>
+				</mx:HBox>
+				<mx:HBox>
+					<mx:Label text="价格(￥):" fontWeight="bold"/><mx:Label text="{product.price}" fontSize="11" />
+				</mx:HBox>
+				<mx:HBox visible="false" includeInLayout="false">
+					<mx:Label text="折扣:"/>	<mx:Label text="{product._discount}" fontSize="11"/>
+				</mx:HBox>
+				<mx:HBox>
+					<mx:Label text="重量(kg):" fontWeight="bold"/>	<mx:Label text="{product.weight}"/>
+				</mx:HBox>
+				<mx:HBox>
+					<mx:Label text="仓储量(件):" fontWeight="bold"/>	<mx:Label text="{product.pcount}"/>
+				</mx:HBox>
+				
+				<mx:HBox>
+					<mx:Label text="上架时间:" fontWeight="bold"/>	<mx:Label text="{product.upTime}"/>
+				</mx:HBox>
+				<mx:HBox>
+					<mx:Label text="下架时间:" fontWeight="bold"/>	<mx:Label text="{product.downTime}"/>
+				</mx:HBox>
+				<mx:Label text="简介:" fontWeight="bold"/>	
+				<mx:Text id="descriptionText" width="95%" height="100%" text="{product.descript}"/>
+			</mx:VBox>
+		</mx:HBox>
+		
+	</mx:VBox>
+	<mx:VBox verticalGap="4" right="0" top="26">
+		<mx:Spacer width="100%"/>
+		<!--icon="@Embed('/assets/icon_cart_empty.png')" icon="@Embed('/assets/icon_compare.png')"  icon="@Embed('/assets/icon_tiles.png')"-->
+		<mx:Button  id="cart_id" label="购物" styleName="detailbtn" buttonMode="true" useHandCursor="true" toolTip="添加到购物车" click="dispatchEvent(new ProductDetailEvent(ProductDetailEvent.PURCHASE, product,true));" width="55"/>
+		<mx:Button  id="compare_id" label="比较" styleName="detailbtn" buttonMode="true" useHandCursor="true" toolTip="添加到比较列表" click="dispatchEvent(new Event('hideProductCart',true));dispatchEvent(new ProductDetailEvent(ProductDetailEvent.COMPARE, product,true))" width="55"/>
+		<mx:Button id="tile_id" label="列表" styleName="detailbtn" buttonMode="true" useHandCursor="true" toolTip="返回到商品列表" click="dispatchEvent(new ProductDetailEvent(ProductDetailEvent.BROWSE, product));" width="55" />
+	</mx:VBox>
+</mx:Canvas>

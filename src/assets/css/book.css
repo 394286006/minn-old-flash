@@ -1,0 +1,105 @@
+/* CSS file */
+@namespace s "library://ns.adobe.com/flex/spark";
+@namespace mx "library://ns.adobe.com/flex/mx";
+@namespace containers "flexmdi.containers.*";
+.bookcanvas{
+	backgroundColor:#a3a584;
+	alpha:0.95;
+	fontSize:13;
+}
+mx|Alert{
+	borderStyle:solid;
+	headerColors: #dd1111, #713f3f;
+	titleStyleName:"alerttitle";
+	messageStyleName:"alertmessage";
+}
+.alerttitle{
+	color: #0e5de7;
+	fontWeight: bold;
+}
+.alertmessage{
+	backgroundColor: #ffffff;
+	color: #575252;
+}
+containers|PopWin{
+	borderStyle: solid;
+	headerColors:#3cca0a, #4d10cb;
+}
+mx|Button.bookbtn {
+	cornerRadius: 0;
+	textIndent: 0;
+	paddingLeft: 0;
+	paddingRight: 0;
+	letterSpacing: 0;
+	highlightAlphas: 0.18, 0.08;
+	fillAlphas: 0.63, 0.34, 0.93, 0.3;
+	fillColors: #000000, #000000, #2e22a7, #acc7c9;
+	color: #ffffff;
+	textRollOverColor: #1719e5;
+	borderColor: #414646;
+	themeColor: #2bcdd3;
+	useHandCursor:true;
+	buttonMode:true;
+	textSelectedColor: #2bcdd3;
+}
+mx|DataGrid mx|Button {
+	cornerRadius: 0;
+	textIndent: 0;
+	paddingLeft: 0;
+	paddingRight: 0;
+	letterSpacing: 0;
+	highlightAlphas: 0.18, 0.08;
+	fillAlphas: 0.63, 0.34, 0.93, 0.3;
+	fillColors: #000000, #000000, #2e22a7, #acc7c9;
+	color: #ffffff;
+	textRollOverColor: #1719e5;
+	borderColor: #414646;
+	themeColor: #2bcdd3;
+	useHandCursor:true;
+	buttonMode:true;
+	textSelectedColor: #2bcdd3;
+}
+mx|ComboBox.bookcomBox {
+	iconColor: #401fd3;
+	themeColor: #e8ebed;
+	cornerRadius: 0;
+	highlightAlphas: 0, 0;
+	fillAlphas: 0, 0, 0, 0;
+	arrowButtonWidth: 14;
+	backgroundAlpha: 0;
+	openDuration: 46;
+	closeDuration: 10;
+}
+mx|DataGrid {
+	backgroundAlpha: 1;
+	backgroundColor: #1f1313;
+	alternatingItemColors: #c8d57a, #21dc99;
+	headerColors: #7ea5e2, #0936ec;
+	horizontalGridLines: true;
+	horizontalGridLineColor: #096573;
+	verticalGridLineColor: #79797d;
+	borderThickness: 0;
+	textSelectedColor: #0b333c;
+	headerStyleName: "mydataGridHeaderStyle";
+	fontSize: 11;
+}
+
+.mydataGridHeaderStyle {
+	color: #fdf7fc;
+	fontSize: 12;
+}
+containers|PopWinExplorer{
+	borderStyle: solid;
+	headerColors:#3cca0a, #4d10cb;
+}
+mx|ToolTip {
+	backgroundAlpha: 0.9;
+	cornerRadius: 11;
+	backgroundColor: #383439;
+	color: #f9fcfa;
+	textAlign: left;
+	fontSize: 12;
+}
+.errorTip{
+	fontSize:12;
+}

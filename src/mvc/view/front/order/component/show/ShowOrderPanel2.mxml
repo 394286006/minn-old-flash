@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Module xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		   xmlns:s="library://ns.adobe.com/flex/spark" 
+		   xmlns:mx="library://ns.adobe.com/flex/mx" layout="vertical" removed="removeHandler(event)"  
+		   name="我的订单" horizontalScrollPolicy="off" verticalScrollPolicy="off"
+		   horizontalGap="0" width="100%" height="100%" initialize="module1_initializeHandler(event)"  creationComplete="module1_creationCompleteHandler(event)" xmlns:controls="book.controls.*" xmlns:component="mvc.view.front.order.component.*" 
+		   xmlns:commit="mvc.view.front.order.component.commit.*" 
+		   xmlns:show="mvc.view.front.order.component.show.*" xmlns:containers="flexmdi.containers.*" 
+		   xmlns:common="minn.common.*" >
+	<fx:Script source="../../../../../../mvc/base/FrontBaseImport.as"/>
+	<fx:Style source="assets/css/orderShowPanel.css"/>
+	<fx:Script>
+		<![CDATA[
+			/**
+			 * @author minn
+			 * @QQ 394286006
+			 * @email freemanfreelift@gmail.com
+			 */
+			import com.adobe.serialization.json.JSON;
+			
+			import minn.event.PageEvent;
+			
+			import mx.events.ResizeEvent;
+			
+			
+			private var alipayurl:String=null;
+			protected function module1_initializeHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				MinnMessageEventManager.getInstance().addEventListener(MinnMessageEvent.MESSAGE+"modifyOrderPanel",messageHandler);
+				MinnMessageEventManager.getInstance().addEventListener(MinnMessageEvent.MESSAGE+"queryNotPayOrder",snpo_id.queryNotPayOrder);
+
+				MinnMessageEventManager.getInstance().addEventListener(OrderEvent.ORDER_RESIZE,function(evt:OrderEvent):void{
+					tar.width=evt.data.width;
+					payaction_id.width=evt.data.width;
+					ordershowpanel_id.width=evt.data.width;
+				});
+				MinnMessageEventManager.getInstance().addEventListener(OrderEvent.ORDER_LOAD_CANCEL,function():void{
+				  if(orderLoader!=null){
+					  orderLoader.close();
+				  }
+					
+				});
+			}
+		
+			private function messageHandler(e:MinnMessageEvent):void{
+				//				orderProductConfig_id.products=products;
+				if(e.data.item.totalqty==0){
+					snpo_id.orders.removeItemAt(e.data.modifyindex);
+					//					snpo_id.removePayOrder();
+				}else{
+					var o:Order=e.data.item as Order;
+					snpo_id.orders.setItemAt(o,e.data.modifyindex);
+					//					Alert.show(e.data.item );
+				}
+				
+			}
+		
+			protected function module1_creationCompleteHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				//				orderProductConfig_id.product_id.addEventListener(ListEvent.ITEM_CLICK,showProductDetail);
+				//				this.addEventListener(FlexMouseEvent.MOUSE_DOWN_OUTSIDE,function():void{
+				//					//					this.dispatchEvent(new WinResizeProxyEvent(WinResizeProxyEvent.WIN_MIN_RESIZE,true));
+				//					Alert.show('showPanel');
+				//				});
+			}
+			
+			private function showOrderResizePanelHandler(evt:FlexEvent):void{
+				Alert.show("showorderResizePanelHandler");
+			}
+			
+			protected function button1_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				this.dispatchEvent(new CloseEvent(CloseEvent.CLOSE,true));
+			}
+			
+			
+			
+			protected function label1_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+			}
+			
+			private function showProductDetail(evt:ListEvent):void{
+				
+			}
+			
+			//			private var pay1:PayAction=null;
+			private var move1:Move=new Move();
+			private var curOrder:Order=null;
+			public function pay_clickHandler(order:Order):void{
+				move1.target=m;
+				move1.xTo=-tar.width;
+				move1.play();
+				payaction_id.price_id.text=order.totalmoney+'';
+				curOrder=order;
+			}
+			public function paysure_clickHandler():void{
+				var validatorErrorArray:Array = Validator.validateAll(payaction_id.validatorArray); 
+				var err:ValidationResultEvent; 
+				var errorMessageArray:Array = []; 
+				if(validatorErrorArray.length>0){
+					for each (err in validatorErrorArray) { 
+						errorMessageArray.push(err.message); 
+					} 
+					
+					if(errorMessageArray.length >0){
+						Alert.show(errorMessageArray.join("\n\n"), "请按照以下错误提示信息重新填写", Alert.OK);
+						
+						return;
+					}
+				}
+				
+				var ap:Alipay=new Alipay();
+				ap.body=payaction_id.body_id.text;
+				ap.subject=payaction_id.subject_id.text;
+				ap.price=payaction_id.price_id.text;
+				ap.out_trade_no=curOrder.out_trade_no;
+				ap.receive_name=curOrder._orderAddress.receiveName;
+				ap.receive_mobile=curOrder._orderAddress.phone;
+				ap.receive_address=curOrder._orderAddress.address;
+				ap.receive_zip=curOrder._orderAddress.code;
+				ap.receive_phone=curOrder._orderAddress.phone;
+				var proxy:OrderProxy=ControllerService.getInstance(ControllerCommand.ORDER_PROXY);
+				proxy.getAlipayParamter(ap,getParamterResultHandler);
+			}
+			public　function payback_clickHandler():void{
+				move1.xTo=0;
+				move1.play();
+				
+			}
+			private var alipayFrame:AlipayFrame2=null;
+			private function getParamterResultHandler(message:Message):void{
+				
+				alipayurl=message.messageBody+'';
+//				Alert.show(alipayurl+'',"提示",4,this.parentDocument as Sprite);
+//				Entrypt.loadswfObject("mvc/view/front/order/component/show/AlipayFrame"+Config.SUBFFIX,function(evt:Event):void{
+//					loadswfCompleteHandler(evt,{url:alipayurl});
+//				},this.parentApplication as DisplayObject);
+//               var af:AlipayFrame=new AlipayFrame();
+//			    PopUpManager.addPopUp(af,this.parentDocument as DisplayObject);
+//				PopUpManager.centerPopUp(af);
+//				af.messageHandler(alipayurl);
+//				this.parentDocument.popAlipayFrame(alipayurl);
+				
+				
+//				
+				
+				
+					if(alipayFrame==null){
+						alipayFrame=new AlipayFrame2();
+						alipayFrame.addEventListener(CloseEvent.CLOSE,function():void{
+							payback_clickHandler();
+						});
+					}
+					alipayFrame.messageHandler(alipayurl);
+					
+					if(!alipayFrame.isPopUp){
+						PopUpManager.addPopUp(alipayFrame,this.parentDocument as DisplayObject);
+					}
+					PopUpManager.addPopUp(alipayFrame,this.parentDocument as DisplayObject);
+//					PopUpManager.
+//					PopUpManager.centerPopUp(alipayFrame);
+//					Alert.show(alipayurl);
+//					alipayFrame.messageHandler(alipayurl);
+//				if(orderLoader==null){
+//					orderLoader=new URLLoader();
+//					//				urlLoader.dataFormat=URLLoaderDataFormat.BINARY;
+//					orderLoader.addEventListener(Event.COMPLETE,orderPollingCompleteHandler);
+//					orderLoader.addEventListener(IOErrorEvent.IO_ERROR,ioerrorHandler);
+//				}
+//				var variables:URLVariables = new URLVariables();
+//				variables.out_trade_no=curOrder.out_trade_no;
+//				var request:URLRequest=new URLRequest(Config.ORDER_POLLING+"?date="+new Date());
+//				request.data=variables;
+//				request.method="post";
+//				orderLoader.load(request);
+			}
+			private var orderLoader:URLLoader=null;
+			private function loadswfCompleteHandler(evt:Event,item:Object):void{
+				if(Config.SUBFFIX==Config.FLAG){
+					WindowProxy.getInstance().getPopWinExplorer("mvc/view/front/order/component/show/AlipayFrame.swf",evt.target.data as ByteArray,this,{item:item},50,280);
+				}else
+					WindowProxy.getInstance().getPopWinExplorer("mvc/view/front/order/component/show/AlipayFrame.swf",Entrypt.uncompress(evt.target.data as ByteArray,this.parentApplication.KEY),this,{item:item},50,280);
+			
+//				if(orderLoader==null){
+//				orderLoader=new URLLoader();
+//				//				urlLoader.dataFormat=URLLoaderDataFormat.BINARY;
+//				orderLoader.addEventListener(Event.COMPLETE,orderPollingCompleteHandler);
+//				orderLoader.addEventListener(IOErrorEvent.IO_ERROR,ioerrorHandler);
+//				}
+//				var variables:URLVariables = new URLVariables();
+//				variables.out_trade_no=curOrder.out_trade_no;
+//				var request:URLRequest=new URLRequest(Config.ORDER_POLLING+"?date="+new Date());
+//				request.data=variables;
+//				request.method="post";
+//				orderLoader.load(request);
+			}
+			
+			private function ioerrorHandler(err:IOErrorEvent):void{
+//				ifr.visible=false;
+				var e:WinResizeProxyEvent=new WinResizeProxyEvent(WinResizeProxyEvent.WIN_WEB_SHOW,true);
+				e.showWeb=false;
+				//					MinnMessageEventManager.getInstance().dispatchEvent(e);
+				this.dispatchEvent(e);
+				this.dispatchEvent(new WinResizeProxyEvent(WinResizeProxyEvent.WIN_RESTORE_RESIZE,true));
+				payback_clickHandler();
+				Alert.show("交易出现异常,请查看订单情况!","提示");
+			}
+			private function orderPollingCompleteHandler(evt:Event):void{
+				var message:Message=MinnUtil.getMessage(JSON.decode(decodeURIComponent(evt.target.data)));
+				if(message.messageSucess==0){
+					Alert.show(message.messageBody,"提示");
+				}else{
+					Alert.show(message.messageBody,"提示");
+					//					Alert.show(KEY);
+//					ifr.visible=false;
+					payback_clickHandler();
+					tar.selectedIndex=1;
+					snpo_id.removePayOrder();
+					spo_id.vbox1_creationCompleteHandler();
+				}
+			
+				this.dispatchEvent(new WinResizeProxyEvent(WinResizeProxyEvent.WinResizeProxy_CLOSE,true));
+			}
+			private function removeHandler(evt:Event):void{
+//				if(evt.target==this)
+//					ifr.removeIFrame();
+			}
+			
+			public function showOrderDetail(order:Order):void{
+				
+				//				move1.yTo=this.height;
+				//				move1.xTo=0;
+				//				move1.target=m;
+				//				move1.play();
+				//				
+				//				move1.yTo=0;
+				//				move1.xTo=0;
+				//				move1.target=orderdetail;
+				//				move1.play();
+				//				Alert.show("showOrderDetail");
+			}
+			
+			private function orderchangeHandler():void{
+				if(tar.selectedIndex==0){
+					snpo_id.queryNotPayOrder();
+				}else{
+					spo_id.vbox1_creationCompleteHandler();
+				}
+			}
+
+			protected function pageBar_pageChangeHandler(event:PageEvent):void
+			{
+				// TODO Auto-generated method stub
+				if(tar.selectedIndex==0){
+					snpo_id.queryNotPayOrder(event);
+				}else if(tar.selectedIndex==1){
+					spo_id.vbox1_creationCompleteHandler(event);
+				}
+			}
+
+		]]>
+	</fx:Script>
+	
+	   <mx:HBox horizontalGap="0" id="m" width="100%" >
+		<mx:Canvas width="{this.screen.width-20}" height="{this.screen.height}" id="ordershowpanel_id">
+		<mx:TabNavigator width="{this.screen.width-20}" height="{this.screen.height}" paddingTop="0" id="tar" creationPolicy="all" change="orderchangeHandler()">
+			<show:ShowNotPayOrder width="100%" height="100%" label="未完成订单" id="snpo_id"/>
+			<show:ShowPayOrder width="100%" height="100%" label="已付款订单" id="spo_id"/>
+		</mx:TabNavigator>
+			<common:PageToolBar x="5" y="5" id="pageBar" pageChange="pageBar_pageChangeHandler(event)"/>
+		</mx:Canvas>
+		<show:PayAction width="{this.screen.width-20}" height="{this.screen.height}" paddingTop="5" id="payaction_id"/>	
+	</mx:HBox>
+</mx:Module>

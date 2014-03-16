@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		   xmlns:s="library://ns.adobe.com/flex/halo" 
+		   xmlns:mx="library://ns.adobe.com/flex/mx" horizontalScrollPolicy="off"
+		   width="{COL_WIDTH_4}" height="{COL_HEIGHT_4}"  borderStyle="solid"
+		   borderColor="#FFFFFF"
+		   verticalScrollPolicy="off"  mouseOver="rollOverHandler(event)"
+		   mouseOut="rollOutHandler(event)"  mouseDown="mouseDownHandler(event)"
+		   mouseMove="mouseMoveHandler(event)"
+		   mouseUp="mouseUpHandler(event)" click="clickHandler(event)" creationComplete="canvas1_creationCompleteHandler(event)">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import flexmdi.containers.ToolTipWin;
+			
+			import mvc.model.merchandise.vo.Product;
+			import mvc.view.front.product.event.ProductDetailEvent;
+			
+			import mx.controls.Alert;
+			import mx.events.DragEvent;
+			import mx.events.EffectEvent;
+			import mx.events.FlexEvent;
+			public static const COL_WIDTH_4:int = 200;
+			public static const COL_HEIGHT_4:int = 200;
+			public static const COL_WIDTH_3:int = 217;
+			public static const COL_HEIGHT_3:int = 165;
+			public static const COL_WIDTH_2:int = 327;
+			public static const COL_HEIGHT_2:int = 250;
+			public static const COMPARE_WIDTH:int = 162;
+			public static const HORIZONTAL_GAP:int = 2;
+			public static const VERTICAL_GAP:int = 3;
+			
+			[Bindable]
+			public var product:Product;
+			private var dragStartPoint:Point;
+//			public var ism:Boolean=false;
+			
+			
+			
+			private function rollOverHandler(evt:MouseEvent=null):void
+			{
+//				if(!ism){
+				setStyle("backgroundColor","#fffffe");
+				this.alpha=0.9;
+				setStyle("borderColor", "#CCCCCC");
+				setStyle("dropShadowEnabled", true);
+				buttons.visible = true;
+//				}
+				
+			}
+			
+			public function rollOutHandler(event:MouseEvent=null):void
+			{
+//				setStyle("backgroundColor",);
+//				this.clearStyle("backgroundColor");
+				this.alpha=1;
+				setStyle("borderColor", "#FFFFFF");
+				setStyle("dropShadowEnabled", false);
+				buttons.visible = false;
+			}
+			public function clickHandler(event:MouseEvent):void
+			{
+				if (event.target != purchase &&
+					event.target != compare &&
+					event.target != details)
+				{
+					dispatchEvent(new ProductDetailEvent(ProductDetailEvent.DETAILS, product));
+				}
+			}
+			
+			
+			
+			public function mouseDownHandler(event:MouseEvent):void
+			{
+			
+				if (event.target != purchase &&
+					event.target != compare &&
+					event.target != details)
+				{
+					dragStartPoint = new Point(event.stageX, event.stageY);
+					dragStartPoint = globalToLocal(dragStartPoint);
+//					Alert.show("dragstart");
+				}
+			}
+			
+			public function mouseMoveHandler(event:MouseEvent):void
+			{
+				if (dragStartPoint != null)
+				{
+					var dragEvent:DragEvent = new DragEvent(DragEvent.DRAG_START, true);
+					dragEvent.localX = dragStartPoint.x;
+					dragEvent.localY = dragStartPoint.y;
+					dragEvent.buttonDown = true;
+					dispatchEvent(dragEvent);
+					
+					rollOutHandler(event);
+					
+					dragStartPoint = null;
+				}
+			}
+			
+			public function mouseUpHandler(event:MouseEvent):void
+			{
+				if (dragStartPoint != null)
+				{
+					dragStartPoint = null;
+				}
+			}
+
+
+			protected function canvas1_creationCompleteHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+//				new ToolTipWin(purchase,"添加到购物车");
+//				new ToolTipWin(compare,"添加到比较列表");
+//				new ToolTipWin(details,"商品详细情况");
+			}
+
+		]]>
+	</fx:Script>
+<mx:VBox width="100%" height="100%" paddingLeft="2" verticalGap="3">
+  <mx:HBox width="100%" horizontalGap="2">
+	  <mx:Spacer width="1"/><mx:Label text="分类:"/><mx:Label text="{product.parentCategoryName}" fontSize="11" fontWeight="bold"/>
+	  <mx:Image height="25" source="assets/img/arrow_next.gif"/><mx:Label text="{product.categoryName}" fontSize="11" fontWeight="bold"/>
+  </mx:HBox>
+  <mx:VBox horizontalGap="2" width="100%" verticalGap="2">
+	    <mx:Canvas height="146" width="194" borderStyle="outset">
+		  <mx:Image source="{Config.UPLOAD_DIR_IMALEVEL1+product._photos[0]}" height="100%" width="100%"/>
+	    </mx:Canvas>
+		<mx:Label text="{product.name}" textAlign="center" width="100%"/>
+	</mx:VBox>
+	<mx:Spacer height="8"/>
+</mx:VBox>
+	<mx:VBox id="buttons" visible="false" verticalGap="4" paddingRight="5" right="8" top="15">
+		<mx:Button id="purchase" icon="@Embed('/assets/icon_cart_empty.gif')" styleName="productViewbtn"
+				   click="dispatchEvent(new Event('showProductCart',true));dispatchEvent(new ProductDetailEvent(ProductDetailEvent.PURCHASE, product))" 
+				   width="30" toolTip="添加到购物车"/>
+		<mx:Button id="compare" icon="@Embed('/assets/icon_compare.gif')" 
+				   click="dispatchEvent(new Event('hideProductCart',true));dispatchEvent(new ProductDetailEvent(ProductDetailEvent.COMPARE, product))" 
+				   width="30" toolTip="添加到比较列表"/>
+		<mx:Button id="details" icon="@Embed('/assets/icon_details.png')" 
+				   click="dispatchEvent(new ProductDetailEvent(ProductDetailEvent.DETAILS, product))" 
+				   width="30" toolTip="商品详细情况"/>
+	</mx:VBox>
+
+</mx:Canvas>

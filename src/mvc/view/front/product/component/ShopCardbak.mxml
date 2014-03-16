@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		   xmlns:s="library://ns.adobe.com/flex/halo" 
+		   xmlns:mx="library://ns.adobe.com/flex/mx" 
+		   height="100%"
+		    width="350" 
+		   xmlns:component="mvc.view.front.product.component.*" horizontalScrollPolicy="off" verticalScrollPolicy="off"
+		   initialize="vbox1_creationCompleteHandler(event)" >
+	<fx:Script source="../../../../../mvc/base/FrontBaseImport.as"/>
+	<fx:Script>
+		<![CDATA[
+			import minn.common.Entrypt;
+			
+			import mvc.model.merchandise.vo.Product;
+			import mvc.view.front.product.event.ProductListEvent;
+			
+			import mx.events.FlexMouseEvent;
+			import mx.managers.PopUpManager;
+			
+			
+//			[Bindable]
+			private var _numProducts:int=0;
+//			[Bindable]
+			public var totalWeight:Number=0;
+			
+//			[Bindable]
+			private var total:Number = 0;
+			
+			protected function vbox1_creationCompleteHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				MinnMessageEventManager.getInstance().addEventListener(ProductListEvent.PRODUCT_QTY_CHANGE_BY_ORDER,messageHandler,false);
+//				MinnMessageEventManager.getInstance().addEventListener(ProductListEvent.ADD_PRODUCT,productListEventHandler);
+//				MinnMessageEventManager.getInstance().addEventListener(ProductListEvent.DUPLICATE_PRODUCT,productListEventHandler);
+//				MinnMessageEventManager.getInstance().addEventListener(ProductListEvent.PRODUCT_QTY_CHANGE,productListEventHandler);
+//				MinnMessageEventManager.getInstance().addEventListener(ProductListEvent.REMOVE_PRODUCT,productListEventHandler);
+//				MinnMessageEventManager.getInstance().addEventListener(ProductListEvent.ADD_PRODUCT,productListEventHandler);
+//				Alert.show("show");
+		      this.addEventListener(FlexMouseEvent.MOUSE_DOWN_OUTSIDE,vbox1_mouseOutHandler)
+				  
+				  drawline();
+			}
+			private function messageHandler(e:ProductListEvent):void{
+				//				addProduct(e.product);
+				var items:Array = productList.items;
+				total = 0; 
+				numProducts = 0;
+				totalWeight=0;
+				for (var i:int=0; i < items.length; i++)
+				{
+					var product:Product = items[i].product;
+					total += product._qty * Number(product.price);
+					totalWeight+=product._qty * Number(product.weight);
+					numProducts += product._qty;
+				}
+				
+			}
+			private function drawline():void{
+				var line:DrawLine=new DrawLine();
+				line.drawLine(0,0,0,52,0x000000,3);
+				line_id.addChild(line);
+				line=new DrawLine();
+				line.drawLine(60,0,60,52,0x000000,3);
+				line_id.addChild(line);
+			}
+			
+			public function set numProducts(np:int):void{
+				_numProducts=np;
+			}
+			[Bindable]
+			public function get numProducts():int{
+				return _numProducts;
+			}
+			protected function commit_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				commitOrder_id.enabled=false;
+				if(productList.getProducts().length>0){
+					Entrypt.loadswfObject("mvc/view/front/order/component/commit/CommitOrderPanel"+Config.SUBFFIX,loadswfCompleteHandler,this.parentApplication as DisplayObject);
+//					WindowProxy.getInstance().getModuleWindow("mvc/view/front/order/component/commit/CommitOrderPanel.swf",{method:"add",item:productList.getProducts()},null,false);
+				}else{
+					Alert.show("你的购物车中没有商品!","提示");
+				}
+			}
+			private function loadswfCompleteHandler(evt:Event):void{
+				if(Config.SUBFFIX==Config.FLAG)
+					WindowProxy.getInstance().getModuleWindow("CommitOrderPanel.swf",evt.target.data as ByteArray,{method:"add",item:productList.getProducts()},this,false);
+					else
+				WindowProxy.getInstance().getModuleWindow("CommitOrderPanel.swf",Entrypt.uncompress(evt.target.data as ByteArray,this.parentApplication.KEY),{method:"add",item:productList.getProducts()},this,false);
+			}
+			private function productListEventHandler(event:ProductListEvent):void
+			{
+//				Alert.show(event.type);
+				switch (event.type)
+				{
+					case ProductListEvent.ADD_PRODUCT:
+//						event.product._qty = 1;  
+						//fall through into the same logic as dup  
+//						Alert.show("add");
+						var items:Array = productList.items;
+						for (var i:int=0; i < items.length; i++)
+						{
+							var product:Product = items[i].product;
+//							if(tempp.id==product.id){
+//								items[i].product=tempp;
+//								product._qty=tempp._qty;
+//							}
+//							//							else{
+//							//								ps.push(product);
+//							//							}
+							total += product._qty * Number(product.price);
+							totalWeight += product._qty * Number(product.weight);
+							numProducts += product._qty;
+							//							Alert.show(product._qty+'');
+						}
+//						this.parentDocument.cartList=parr;
+						//						ArrayCollection(this.parentDocument.cartList).refresh();
+						//						ArrayCollection(this.parentDocument.cartList).addAll(ps);
+						//						Alert.show(ps[0]._qty);
+//						this.parentDocument.cartCount=numProducts;
+						break;
+					case ProductListEvent.DUPLICATE_PRODUCT:
+//						if(event.method!="showcard"){
+//						Alert.show("DUPLICATE_PRODUCT:"+event.product._qty);
+//						event.product._qty++;
+//						Alert.show(event.product.qty.toString());
+						totalWeight += Number(event.product.weight);
+						total += Number(event.product.price);
+//						numProducts++;
+						
+//						}
+						
+//						productList.addProduct(event.product);
+						break;            
+					case ProductListEvent.PRODUCT_QTY_CHANGE:
+//						Alert.show("PRODUCT_QTY_CHANGE:"+event.product._qty);
+//						Alert.show("change");
+						var parr:ArrayCollection=new ArrayCollection();
+						var tempp:Product=event.product as Product;
+						var cardl:ArrayCollection =this.parentDocument.cartList;
+						total = 0; 
+						numProducts = 0;
+						totalWeight=0;
+						for (var j:int=0; j < cardl.length; j++)
+						{
+							var p:Product = cardl.getItemAt(j) as Product;
+							if(tempp.id==p.id){
+//								product=tempp;
+								p._qty=tempp._qty;
+							}
+//							else{
+//								ps.push(product);
+//							}
+							total += p._qty * Number(p.price);
+							totalWeight += p._qty * Number(p.weight);
+							numProducts += p._qty;
+//							Alert.show(product._qty+'');
+							parr.addItem(p);
+						}
+						this.parentDocument.cartList=parr;
+//						ArrayCollection(this.parentDocument.cartList).refresh();
+//						ArrayCollection(this.parentDocument.cartList).addAll(ps);
+//						Alert.show(ps[0]._qty);
+						this.parentDocument.cartCount=numProducts;
+						break;
+					case ProductListEvent.REMOVE_PRODUCT:
+						var tempp:Product=event.product;
+						tempp._qty=1;
+						var items:Array = productList.getProducts();
+						total = 0; 
+						numProducts = 0;
+						totalWeight=0;
+//						Alert.show(productList.getProducts().length+'');
+						for (var i:int=0; i < items.length; i++)
+						{
+							var product:Product = items[i]as Product;
+							if(tempp.id!=product.id){
+//								productList.items[i].product=tempp;
+//								product=tempp;
+//								items
+//								product._qty=1;
+//								tempp._qty=1;
+							}
+							total += product._qty * Number(product.price);
+							totalWeight += product._qty * Number(product.weight);
+							numProducts += product._qty;
+						}
+//					    ArrayCollection(this.parentDocument.cartList).removeAll();
+						this.parentDocument.cartList=(new ArrayCollection(productList.getProducts()));
+						parentDocument.shop_clickHandler(null,2);
+//						Alert.show("removeproduct");
+						break;
+					default:
+						break;
+				}
+			}
+			
+			private function clear_clickHandler(evt:MouseEvent):void{
+				productList.removeAllChildren();
+				productList.items=[];
+				var items:Array = productList.items;
+				total = 0; 
+				numProducts = 0;
+				totalWeight=0;
+				for (var i:int=0; i < items.length; i++)
+				{
+					var product:Product = items[i].product;
+					total += product._qty * Number(product.price);
+					totalWeight += product._qty * Number(product.weight);
+					numProducts += product._qty;
+				}
+				ArrayCollection(this.parentDocument.cartList).removeAll();
+				parentDocument.shop_clickHandler(null,2);
+			}
+			
+
+			protected function vbox1_mouseOutHandler(event:Event):void
+			{
+				// TODO Auto-generated method stub
+//				PopUpManager.removePopUp(this);
+//				this.parentDocument.shop_clickHandler(null,0);
+			}
+
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+		<mx:CurrencyFormatter currencySymbol="￥" id="cf" precision="2"/>
+		<mx:CurrencyFormatter currencySymbol="" id="kg" precision="2"/>
+	</fx:Declarations>
+	<mx:Button y="52" width="100%" height="100%" transformX="1" transformY="2" transformZ="4" skin="@Embed(source='../../../../../assets/img/btnUp.png')"/>
+<mx:VBox width="100%" height="100%" verticalGap="0" horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalAlign="right">
+	<mx:HBox width="100%" height="52" >
+		<mx:Spacer width="100%"/><mx:Canvas height="100%" width="68" id="line_id"/>
+	</mx:HBox>
+	<component:ProductCompareList  id="productList" width="100%" height="100%" styleName="mytabNavigator" horizontalScrollPolicy="off" verticalScrollPolicy="off"
+								   addProduct="productListEventHandler(event)"
+								   duplicateProduct="productListEventHandler(event)"
+								   productQtyChange="productListEventHandler(event)"
+								   removeProduct="productListEventHandler(event)"  showQuantity="true"/>
+	<mx:Canvas width="100%" height="76" styleName="mytabNavigator">
+		
+		<mx:Button label="提交" x="254" y="52" click="commit_clickHandler(event)" id="commitOrder_id" buttonMode="true" useHandCursor="true"/>
+		<mx:Label x="19" y="7" text="购物总数:{numProducts}"/>  
+		<mx:Label x="168" y="7" text="购物总重量(kg):{kg.format(totalWeight)}"/>   
+		<mx:Label x="82" y="35" text="购物总额(未计物流费):{cf.format(total)}"/>
+		<mx:Button label="清空" x="170" y="52" click="clear_clickHandler(event)" buttonMode="true" useHandCursor="true"/>
+	</mx:Canvas>
+	<mx:Canvas width="100%" height="5" styleName="mytabNavigator"/>
+</mx:VBox>
+</mx:Canvas>

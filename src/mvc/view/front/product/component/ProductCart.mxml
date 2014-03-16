@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Panel xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" height="100%" verticalGap="0" horizontalGap="0" layout="vertical" width="350" 
+		 title="我的购物车(可把商品拖动到这里)" 
+		 xmlns:component="mvc.view.front.product.component.*" initialize="vbox1_creationCompleteHandler(event)">
+	<fx:Script source="../../../../../mvc/base/FrontBaseImport.as"/>
+	<fx:Script>
+		<![CDATA[
+			import mvc.model.merchandise.vo.Product;
+			import mvc.view.front.product.event.ProductListEvent;
+			
+			[Bindable]
+			private var _numProducts:int=0;
+			[Bindable]
+			public var totalWeight:Number=0;
+			
+			[Bindable]
+			private var total:Number = 0;
+			
+			protected function vbox1_creationCompleteHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				MinnMessageEventManager.getInstance().addEventListener(ProductListEvent.PRODUCT_QTY_CHANGE_BY_ORDER,messageHandler,false);
+			}
+			private function messageHandler(e:ProductListEvent):void{
+				//				addProduct(e.product);
+				var items:Array = productList.items;
+				total = 0; 
+				numProducts = 0;
+				totalWeight=0;
+				for (var i:int=0; i < items.length; i++)
+				{
+					var product:Product = items[i].product;
+					total += product._qty * Number(product.price);
+					totalWeight+=product._qty * Number(product.weight);
+					numProducts += product._qty;
+				}
+				
+			}
+			
+			protected function help_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				WindowProxy.getInstance().getMdiWindow("mvc/view/front/help/UserHelper.swf");
+			}
+
+			public function set numProducts(np:int):void{
+				_numProducts=np;
+//				MinnMessageEventManager.getInstance().dispatchEvent(new Event("cartCount",true));
+				this.dispatchEvent(new MinnMessageEvent(MinnMessageEvent.MESSAGE+"carCount",_numProducts,true));
+//					parentApplication.cartCount=_numProducts;
+			}
+			[Bindable]
+			public function get numProducts():int{
+				return _numProducts;
+			}
+			protected function commit_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				if(productList.getProducts().length>0){
+					WindowProxy.getInstance().getModuleWindow("mvc/view/front/order/component/commit/CommitOrderPanel.swf",{method:"add",item:productList.getProducts()},null,false);
+				}else{
+					Alert.show("你的购物车中没有商品!","提示");
+				}
+			}
+			private function productListEventHandler(event:ProductListEvent):void
+			{
+				switch (event.type)
+				{
+					case ProductListEvent.ADD_PRODUCT:
+						event.product._qty = 0;  
+						//fall through into the same logic as dup          
+					case ProductListEvent.DUPLICATE_PRODUCT:
+						event.product._qty++;
+//						Alert.show(event.product.qty.toString());
+						totalWeight += Number(event.product.weight);
+						total += Number(event.product.price);
+						numProducts++;
+						break;            
+					case ProductListEvent.PRODUCT_QTY_CHANGE:
+//						Alert.show("change");
+					case ProductListEvent.REMOVE_PRODUCT:
+						var items:Array = productList.items;
+						total = 0; 
+						numProducts = 0;
+						totalWeight=0;
+						for (var i:int=0; i < items.length; i++)
+						{
+							var product:Product = items[i].product;
+							total += product._qty * Number(product.price);
+							totalWeight += product._qty * Number(product.weight);
+							numProducts += product._qty;
+						}
+					
+						break;
+					default:
+						break;
+				}
+			}
+
+			private function clear_clickHandler(evt:MouseEvent):void{
+				productList.removeAllChildren();
+				productList.items=[];
+				var items:Array = productList.items;
+				total = 0; 
+				numProducts = 0;
+				totalWeight=0;
+				for (var i:int=0; i < items.length; i++)
+				{
+					var product:Product = items[i].product;
+					total += product._qty * Number(product.price);
+					totalWeight += product._qty * Number(product.weight);
+					numProducts += product._qty;
+				}
+			}
+
+		]]>
+	</fx:Script>
+
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+		<mx:CurrencyFormatter currencySymbol="￥" id="cf" precision="2"/>
+		<mx:CurrencyFormatter currencySymbol="" id="kg" precision="2"/>
+	</fx:Declarations>
+	
+	
+	<!--mx:HBox>
+		<mx:Image source="assets/icon_cart_full.png"/>
+		<s:Label text="我的购物车(可把商品拖动到这里)"/>
+	</mx:HBox-->
+	<component:ProductCompareList  id="productList" width="100%" height="100%" styleName="homeSection"
+							addProduct="productListEventHandler(event)"
+							duplicateProduct="productListEventHandler(event)"
+							productQtyChange="productListEventHandler(event)"
+							removeProduct="productListEventHandler(event)"  showQuantity="true">
+		
+	</component:ProductCompareList>
+	<mx:Canvas width="100%" height="76" styleName="homeSection">
+		
+		<mx:Button label="提交" x="254" y="52" click="commit_clickHandler(event)" buttonMode="true" useHandCursor="true"/>
+		<s:Label x="19" y="7" text="购物总数:{numProducts}"/>  
+		<s:Label x="168" y="7" text="购物总重量(kg):{kg.format(totalWeight)}"/>   
+		<s:Label x="82" y="35" text="购物总额(未计物流费):{cf.format(total)}"/>
+		<mx:Button label="清空" x="170" y="52" click="clear_clickHandler(event)" buttonMode="true" useHandCursor="true"/>
+	</mx:Canvas>
+</mx:Panel>

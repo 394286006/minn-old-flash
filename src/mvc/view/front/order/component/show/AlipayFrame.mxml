@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Module xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		   xmlns:s="library://ns.adobe.com/flex/spark" 
+		   xmlns:mx="library://ns.adobe.com/flex/mx" blendMode="darken" alpha="1" backgroundColor="#FFFEFE" layout="absolute" width="800" height="500" xmlns:common="minn.common.*" initialize="module1_initializeHandler(event)" creationComplete="module1_creationCompleteHandler(event)"  xmlns:containers="flexmdi.containers.*">
+	<fx:Script>
+		<![CDATA[
+			/**
+			 * @author minn
+			 * @QQ 394286006
+			 * @email freemanfreelift@gmail.com
+			 */
+			import mx.events.FlexEvent;
+
+			protected function module1_initializeHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+			}
+
+
+			protected function module1_creationCompleteHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+//				ifr.source="http://127.0.0.1:8009/minn/special/Circulate/index.html";
+//				ifr.visible=true;
+			}
+
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<containers:IFrame width="100%" height="100%" id="ifr" source="http://127.0.0.1:8009/minn/special/Circulate/index.html" visible="true"/>
+	<!--common:IFrame width="100%" height="100%" id="ifr" source="http://127.0.0.1:8009/minn/special/Circulate/index.html" visible="true"/-->
+</mx:Module>

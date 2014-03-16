@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Panel xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		   xmlns:s="library://ns.adobe.com/flex/halo" 
+		   xmlns:mx="library://ns.adobe.com/flex/mx"  fontSize="13"  
+		   width="600" height="450" initialize="module1_initializeHandler(event)"
+		   creationComplete="module1_creationCompleteHandler(event)" xmlns:controls="book.controls.*" 
+		   xmlns:component="mvc.view.front.order.component.*" 
+		   xmlns:commit="mvc.view.front.order.component.commit.*" 
+		   xmlns:s1="library://ns.adobe.com/flex/spark" >
+	<fx:Script source="../../../../../../mvc/base/FrontBaseImport.as"/>
+	<fx:Script>
+		<![CDATA[
+			import mvc.model.order.vo.OrderAddress;
+			private var products:Array=null;
+			private var orderAddress:OrderAddress=null;
+			public var method:String="add";
+//			[Bindable]
+			private var order:Order=null;
+			private var modifyindex:int=-1;
+			
+			protected function module1_initializeHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+//				MinnMessageEventManager.getInstance().addEventListener(this.parent.toString()+MinnMessageEvent.CREATIONCOMPLETE_MESSAGE,messageHandler);
+//				MinnMessageEventManager.getInstance().addEventListener(MinnMessageEvent.MESSAGE+"closebook",closeThis);
+			}
+			
+			public function closeThis(evt:MinnMessageEvent=null):void{
+//				this.dispatchEvent(new CloseEvent(CloseEvent.CLOSE,true));
+				PopUpManager.removePopUp(this);
+			}
+			public function messageHandler(val:Object):void{
+				if(productDetail_id.qtybtn!=null)
+				productDetail_id.qtybtn.enabled=false;
+				method=val.method;
+				if(val.hasOwnProperty('modifyindex'))
+				    modifyindex=val.modifyindex;
+				if(val.method=="add"){
+				   products=val.item as Array;
+				   orderProductConfig_id.products=new ArrayCollection(products);
+				}
+				if(val.method=="modify"||val.method=="showDetail"){
+					if(val.hasOwnProperty("type")&&val.type=="showdetail"){
+//						orderProductConfig_id.ordercommit_id.visible=false;
+//						orderProductConfig_id.operation_id.visible=false;
+//						orderProductConfig_id.ordercommit_id.visible=false;
+//						productDetail_id.qtybtn.visible=false;
+					}
+//					Alert.show(val.item);
+					 order=val.item as Order;
+//					Alert.show(order+'');
+					var address:OrderAddress=null;
+					if(order._orderAddress is OrderAddress)
+						address=order._orderAddress as OrderAddress;
+					else{
+						address=new OrderAddress();
+						MinnUtil.propertyMap(order._orderAddress,address);
+					}
+					address_id.orderAddress=address;
+					var md:Array=order._products as Array;
+					var ac:ArrayCollection=new ArrayCollection();
+					if(md.length>0){
+						if(md[0] is Product)
+						{
+							products=md;
+							ac.addAll(new ArrayCollection(md));
+						}else{
+						
+							for(var i:int=0;i<md.length;i++){
+								var v:Product=new Product();
+								ac.addItem(v);
+							}
+							MinnUtil.copyProperty(ac,md);
+							products=ac.toArray();
+						}
+					}
+					orderProductConfig_id.products=ac;
+				}
+				orderProductConfig_id.reCount();
+			}
+			
+			protected function module1_creationCompleteHandler(event:FlexEvent=null):void
+			{
+				// TODO Auto-generated method stub
+				//				orderProductConfig_id.product_id.addEventListener(ListEvent.ITEM_CLICK,showProductDetail);
+				Alert.okLabel="确定";
+//				if(method=="showDetail"){
+//					orderProductConfig_id.operation_id.visible=false;
+//					orderProductConfig_id.ordercommit_id.visible=false;
+//					productDetail_id.qtybtn.visible=false;
+//				}
+			}
+			protected function button1_clickHandler(event:MouseEvent=null):void
+			{
+				// TODO Auto-generated method stub
+				this.dispatchEvent(new CloseEvent(CloseEvent.CLOSE,true));
+			}
+			
+			
+			private function pageChangeHandler():void{
+				
+				if(book_id.currentPageIndex==book_id.pageCount){
+				}else{
+				}
+			}
+			
+			protected function label1_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				book_id.currentPageIndex=2;
+			}
+			
+			protected function orderProductConfig_id_creationCompleteHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				orderProductConfig_id.product_id.addEventListener(ListEvent.ITEM_CLICK,showProductDetail);
+				showProductDetail(null,products[0] as Product);
+				
+			}
+			private function showProductDetail(evt:ListEvent,da:Product=null):void{
+//				Alert.show(evt.target.toString());
+				var obj:Product=null;
+				if(evt!=null){
+					productDetail_id.qtybtn.enabled=true;
+					obj=evt.target.selectedItem as Product;
+				}else{
+					obj=da;
+				}
+				productDetail_id.product=obj;
+			}
+			
+			private function alertClickHandler(event:CloseEvent):void {
+//				WindowProxy.getInstance().getPopWin("mvc/view/front/user/component/LoginOrRegisterPanel.swf",this,"default",100,460);
+//				Entrypt.loadswfObject("mvc/view/front/user/component/LoginOrRegisterPanel"+Config.SUBFFIX,loadswfCompleteHandler,this);
+//				this.parentDocument.popLoginWin({type:"login"});
+				this.dispatchEvent(new MinnMessageEvent(MinnMessageEvent.MESSAGE+"openLoginWin",true));
+		
+			}
+			private function loadswfCompleteHandler(evt:Event):void{
+				//				mm.loadModule("2011010812342.swf",Entrypt.uncompress(evt.target.data as ByteArray,KEY));
+				if(Config.SUBFFIX==Config.FLAG){
+					WindowProxy.getInstance().getPopWin("mvc/view/front/user/component/LoginOrRegisterPanel.swf",evt.target.data as ByteArray,this,{type:"default"},100,460);
+				}else
+				    WindowProxy.getInstance().getPopWin("mvc/view/front/user/component/LoginOrRegisterPanel.swf",Entrypt.uncompress(evt.target.data as ByteArray,this.parentApplication.KEY),this,{type:"default"},100,460);
+//             WindowProxy.getInstance().getPopWin("mvc/view/front/user/component/LoginOrRegisterPanel.swf",evt.target.data as ByteArray,this,{type:"default"},100,460);
+			}
+
+			public function commit_clickHandler():void{
+				
+				var validatorErrorArray:Array = Validator.validateAll(validatorArray); 
+				var err:ValidationResultEvent; 
+				var errorMessageArray:Array = []; 
+				if(validatorErrorArray.length>0){
+					for each (err in validatorErrorArray) { 
+						errorMessageArray.push(err.message); 
+					} 
+					
+					if(errorMessageArray.length >0){
+						Alert.show(errorMessageArray.join("\n\n"), "请按照以下错误提示信息重新填写", Alert.OK);
+						if(errorMessageArray.length>1)
+						book_id.currentPageIndex=0;
+						return;
+					}
+				}
+				
+				if(parentApplication.user==null){
+					Alert.show("你好,需要下订单,请先登录!","提示",Alert.OK,this,alertClickHandler);
+					return;
+				}
+				var proxy:OrderProxy=ControllerService.getInstance(ControllerCommand.ORDER_PROXY);
+				if(method=="add"){
+//					orderProductConfig_id.ordercommit_id.enabled=false;
+					order=new Order();
+					order._sid=this.parentApplication.PRIVATEKEY;
+					order._orderAddress=address_id.orderAddress;
+					order._products=orderProductConfig_id.products.toArray();
+					order.totalmoney=orderProductConfig_id.totalmoney;
+					order.totalweight=orderProductConfig_id.totalWeight;
+					order.totalqty=orderProductConfig_id.numProducts;
+					order.getway=address_id.getway_id.selectedItem.data;
+					order.flag=1;
+					order.creator=parentApplication.user.id;
+					order.out_trade_no=parentApplication.user.userName_en+MinnUtil.getCurentDateAndTime("YYYYMMDDHHNNSS");
+					
+//				    Alert.show(parentApplication.user.userName_en+MinnUtil.getCurentDateAndTime("YYYYMMDDHHNNSS"));
+					
+					proxy.add(order,commitOrderResultHandler,commitFaultHandler);
+				}else{
+//					curOrder.
+					order._sid=this.parentApplication.PRIVATEKEY;
+					order._orderAddress=address_id.orderAddress;
+//					Alert.show(address_id.orderAddress.receiveName);
+					order._products=orderProductConfig_id.products.toArray();
+					order.totalmoney=orderProductConfig_id.totalmoney;
+					order.totalweight=orderProductConfig_id.totalWeight;
+					order.totalqty=orderProductConfig_id.numProducts;
+					order.getway=address_id.getway_id.selectedItem.data;
+					proxy.modify(order,orderModifyResultHandler,orderModifyFaultResultHandler);
+				}
+			}
+			
+			private function orderModifyResultHandler(evt:Message):void{
+//				if(WindowProxy.getInstance().checkExistWindow("mvc/view/front/order/component/show/ShowOrderPanel.swf"))
+//				   Alert.show(order._orderAddress.id);
+//					loadssopwfCompleteHandler(null,{item:order,modifyindex:modifyindex});
+				this.dispatchEvent(new MinnMessageEvent(MinnMessageEvent.MESSAGE+"modifyOrderPanel",{item:order,modifyindex:modifyindex},true));
+					this.closeThis();
+//					else
+//				Entrypt.loadswfObject("mvc/view/front/order/component/show/ShowOrderPanel"+Config.SUBFFIX,function(evt:Event):void{
+//					loadssopwfCompleteHandler(evt,curOrder);
+//				});
+			}
+			private function orderModifyFaultResultHandler(evt:FaultEvent):void{
+//				Alert.show("请求的操作失败,请联系管理员!","提示");
+			}
+			private function commitOrderResultHandler(message:Message):void{
+				
+//			   Alert.show(message.messageBody+'');
+//				Entrypt.loadswfObject("mvc/view/front/order/component/show/ShowOrderPanel"+Config.SUBFFIX,loadssopwfCompleteHandler,this);
+				this.dispatchEvent(new MinnMessageEvent(MinnMessageEvent.MESSAGE+"orderShowPanel",null,true));
+			    this.closeThis();
+			}
+			
+			private function commitFaultHandler(evt:Event):void{
+				
+				Alert.show("提交出现异常,请联系管理员!","提示");
+				orderProductConfig_id.ordercommit_id.enabled=true;
+			}
+			private function loadssopwfCompleteHandler(evt:Event,d:Object=null):void{
+				if(evt!=null){
+					if(Config.SUBFFIX==Config.FLAG){
+						WindowProxy.getInstance().getPopWinExplorer("ShowOrderPanel.swf",evt.target.data as ByteArray,this,d,50,280);
+					}else
+					    WindowProxy.getInstance().getPopWinExplorer("ShowOrderPanel.swf",Entrypt.uncompress(evt.target.data as ByteArray,this.parentApplication.KEY),this,d,50,280);
+				
+				}else{
+					WindowProxy.getInstance().getPopWinExplorer("ShowOrderPanel.swf",null,this,d,50,280);
+				}
+				button1_clickHandler();
+			}
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+		<fx:Array id="validatorArray">
+			<mx:StringValidator
+								source="{address_id.receiveName_id}" 
+								requiredFieldError="收货人不能为空！"
+								property="text" 
+								required="true" />
+			<mx:StringValidator 
+								source="{address_id.address2_id}" 
+								requiredFieldError="详细地址不能不能为空！"
+								property="text" 
+								required="true" />
+			<mx:StringValidator
+								source="{address_id.phone_id}" 
+								requiredFieldError="联系电话不能为空！"
+								property="text" 
+								required="true" />
+			<mx:StringValidator 
+								source="{address_id.email_id}" 
+								requiredFieldError="email邮件不能为空！"
+								property="text" 
+								required="true" />
+			<mx:StringValidator 
+								source="{address_id.code_id}" 
+								requiredFieldError="编码不能为空！"
+								property="text" 
+								required="true" />
+			<mx:NumberValidator source="{productDetail_id.qty_id}" property="text" integerError="请输入整形!" invalidCharError="请输入整形!" invalidFormatCharsError="请输入整形!"
+								minValue="1"  domain="int"
+								trigger="{productDetail_id.qtybtn}" triggerEvent="click"
+								/>
+		</fx:Array>
+	</fx:Declarations>
+		<controls:FlexBook width="600" height="450" change="pageChangeHandler()" id="book_id" creationPolicy="all"
+						   itemSize="halfPage"  activeGrabArea="corners" animateCurrentPageIndex="true" edgeAndCornerSize="50" >
+			<commit:Commitml/>
+			<commit:CustomerAddress id="address_id"/>
+			<commit:OrderProductConfig id="orderProductConfig_id" creationComplete="orderProductConfig_id_creationCompleteHandler(event)"/>
+			<commit:CommitOrderProductDetail id="productDetail_id" />
+		</controls:FlexBook>
+</mx:Panel>
